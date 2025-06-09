@@ -14,11 +14,11 @@ import { BillingSystem } from './components/BillingSystem';
 import { CommunicationSystem } from './components/CommunicationSystem';
 
 function App() {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user, isInitialized } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   // Show loading spinner during initialization
-  if (isLoading) {
+  if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -26,7 +26,9 @@ function App() {
             <span className="text-white font-bold text-2xl">E</span>
           </div>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Caricamento sistema...</p>
+          <p className="text-gray-600 mt-4">
+            {isLoading ? 'Caricamento sistema...' : 'Inizializzazione...'}
+          </p>
         </div>
       </div>
     );

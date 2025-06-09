@@ -10,7 +10,7 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isInitialized } = useAuth();
 
   useEffect(() => {
     console.log('🔄 Inizializzazione LoginForm...');
@@ -19,23 +19,41 @@ export const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Previeni submit multipli
+    if (loading) {
+      console.log('⏳ Login già in corso, ignoro richiesta duplicata');
+      return;
+    }
+
+    // Assicurati che l'autenticazione sia inizializzata
+    if (!isInitialized) {
+      console.log('⏳ Sistema non ancora inizializzato, attendo...');
+      setError('Sistema in inizializzazione, riprova tra un momento...');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     console.log('🚀 Inizio processo di login...');
 
     try {
+      // Aggiungi un piccolo delay per evitare problemi di timing
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const user = authenticateUser(username, password);
       
       if (user) {
         const token = generateToken();
         saveUserSession(user, token);
         
-        // Piccolo delay per assicurarsi che il localStorage sia aggiornato
-        setTimeout(() => {
-          login(user, token);
-          console.log('✅ Login completato con successo');
-        }, 50);
+        console.log('✅ Autenticazione riuscita, aggiorno stato...');
+        
+        // Usa await per assicurarsi che il login sia completato
+        await login(user, token);
+        
+        console.log('✅ Login completato con successo');
       } else {
         setError('Username o password non corretti. Contatta l\'amministratore per le credenziali.');
         console.log('❌ Login fallito - credenziali non valide');
@@ -83,6 +101,7 @@ export const LoginForm: React.FC = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 placeholder="Inserisci username"
                 required
+                disabled={loading || !isInitialized}
               />
             </div>
 
@@ -99,11 +118,13 @@ export const LoginForm: React.FC = () => {
                   className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                   placeholder="Inserisci password"
                   required
+                  disabled={loading || !isInitialized}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-sky-600 transition-colors"
+                  disabled={loading}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -123,7 +144,7 @@ export const LoginForm: React.FC = () => {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isInitialized}
               className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {loading ? (
@@ -149,12 +170,26 @@ export const LoginForm: React.FC = () => {
         </div>
 
         {/* System Status */}
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+        <div className={`border rounded-xl p-4 ${
+          isInitialized 
+            ? 'bg-green-50 border-green-200' 
+            : 'bg-yellow-50 border-yellow-200'
+        }`}>
           <div className="flex items-center">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-3"></div>
+            <div className={`w-3 h-3 rounded-full animate-pulse mr-3 ${
+              isInitialized ? 'bg-green-500' : 'bg-yellow-500'
+            }`}></div>
             <div>
-              <p className="text-sm font-medium text-green-800">Sistema Operativo</p>
-              <p className="text-xs text-green-600">Tutti i servizi sono attivi</p>
+              <p className={`text-sm font-medium ${
+                isInitialized ? 'text-green-800' : 'text-yellow-800'
+              }`}>
+                {isInitialized ? 'Sistema Operativo' : 'Inizializzazione Sistema'}
+              </p>
+              <p className={`text-xs ${
+                isInitialized ? 'text-green-600' : 'text-yellow-600'
+              }`}>
+                {isInitialized ? 'Tutti i servizi sono attivi' : 'Caricamento in corso...'}
+              </p>
             </div>
           </div>
         </div>

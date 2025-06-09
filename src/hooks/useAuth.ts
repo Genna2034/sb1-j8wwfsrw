@@ -10,12 +10,16 @@ export const useAuth = () => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       console.log('🔄 Inizializzazione autenticazione...');
       
       try {
+        // Aggiungi un piccolo delay per assicurarsi che localStorage sia accessibile
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         if (isValidSession()) {
           const user = getCurrentUser();
           const token = localStorage.getItem('emmanuel_token');
@@ -54,23 +58,34 @@ export const useAuth = () => {
         });
       } finally {
         setIsLoading(false);
+        setIsInitialized(true);
+        console.log('✅ Inizializzazione autenticazione completata');
       }
     };
 
     initializeAuth();
   }, []);
 
-  const login = (user: User, token: string) => {
+  const login = async (user: User, token: string) => {
     console.log('🚀 Effettuando login per:', user.name);
     
-    // Aggiorna immediatamente lo stato
-    setAuthState({
-      user,
-      isAuthenticated: true,
-      token
-    });
-    
-    console.log('✅ Stato autenticazione aggiornato');
+    try {
+      // Aggiorna immediatamente lo stato
+      setAuthState({
+        user,
+        isAuthenticated: true,
+        token
+      });
+      
+      console.log('✅ Stato autenticazione aggiornato');
+      
+      // Forza un re-render per assicurarsi che il cambiamento sia visibile
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+    } catch (error) {
+      console.error('💥 Errore durante il login:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
@@ -99,6 +114,7 @@ export const useAuth = () => {
     ...authState,
     login,
     logout,
-    isLoading
+    isLoading,
+    isInitialized
   };
 };
