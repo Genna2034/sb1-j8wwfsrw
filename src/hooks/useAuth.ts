@@ -28,13 +28,28 @@ export const useAuth = () => {
           } else {
             console.log('Sessione non valida, pulizia...');
             clearUserSession();
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              token: null
+            });
           }
         } else {
           console.log('Nessuna sessione valida trovata');
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            token: null
+          });
         }
       } catch (error) {
         console.error('Errore nell\'inizializzazione auth:', error);
         clearUserSession();
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          token: null
+        });
       } finally {
         setIsLoading(false);
       }
@@ -53,13 +68,22 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    console.log('Effettuando logout...');
+    console.log('🚪 Effettuando logout...');
+    
+    // Pulisci localStorage
     clearUserSession();
+    
+    // Resetta lo stato
     setAuthState({
       user: null,
       isAuthenticated: false,
       token: null
     });
+    
+    // Forza il refresh della pagina per assicurarsi che tutto sia pulito
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return {

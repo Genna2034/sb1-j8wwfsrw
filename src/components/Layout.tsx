@@ -59,6 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
   const handleLogout = () => {
     if (window.confirm('Sei sicuro di voler uscire?')) {
+      console.log('🚪 Utente ha confermato il logout');
       logout();
     }
   };
@@ -114,7 +115,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 title="Logout"
               >
                 <LogOut className="w-5 h-5" />

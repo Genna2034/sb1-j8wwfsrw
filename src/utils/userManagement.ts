@@ -33,9 +33,12 @@ const DEFAULT_USERS: User[] = [
 ];
 
 export const initializeDefaultUsers = (): void => {
-  console.log('Inizializzazione utenti di default...');
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
-  console.log('Utenti di default salvati:', DEFAULT_USERS);
+  const existingUsers = localStorage.getItem(STORAGE_KEY);
+  if (!existingUsers) {
+    console.log('Inizializzazione utenti di default...');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
+    console.log('Utenti di default salvati:', DEFAULT_USERS);
+  }
 };
 
 export const getUsers = (): User[] => {
@@ -51,17 +54,32 @@ export const getUsers = (): User[] => {
 };
 
 export const saveUser = (user: User): void => {
+  console.log('Salvando utente:', user);
+  
+  // Assicurati che la password sia presente
+  if (!user.password) {
+    console.error('ERRORE: Tentativo di salvare utente senza password!');
+    throw new Error('Password obbligatoria per salvare l\'utente');
+  }
+  
   const users = getUsers();
   const existingIndex = users.findIndex(u => u.id === user.id);
   
   if (existingIndex >= 0) {
-    users[existingIndex] = user;
+    console.log('Aggiornando utente esistente:', user.id);
+    users[existingIndex] = { ...user }; // Crea una copia completa
   } else {
-    users.push(user);
+    console.log('Aggiungendo nuovo utente:', user.id);
+    users.push({ ...user }); // Crea una copia completa
   }
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  console.log('Utente salvato:', user);
+  console.log('✅ Utente salvato con successo:', user);
+  
+  // Verifica che sia stato salvato correttamente
+  const savedUsers = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const savedUser = savedUsers.find((u: User) => u.id === user.id);
+  console.log('Verifica salvataggio:', savedUser);
 };
 
 export const deleteUser = (userId: string): void => {

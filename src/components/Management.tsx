@@ -14,27 +14,64 @@ export const Management: React.FC = () => {
   }, []);
 
   const handleAddUser = (userData: Partial<User>) => {
+    console.log('Creando nuovo utente con dati:', userData);
+    
+    // Assicurati che tutti i campi obbligatori siano presenti
+    if (!userData.username || !userData.password || !userData.name) {
+      alert('Username, password e nome sono obbligatori!');
+      return;
+    }
+    
     const newUser: User = {
       id: generateUserId(),
-      username: userData.username || '',
-      name: userData.name || '',
+      username: userData.username,
+      name: userData.name,
       role: userData.role || 'staff',
       department: userData.department || '',
-      position: userData.position || ''
+      position: userData.position || '',
+      password: userData.password // IMPORTANTE: assicurati che la password sia inclusa
     };
 
-    saveUser(newUser);
-    setUsers(prev => [...prev, newUser]);
-    setShowAddUser(false);
+    console.log('Nuovo utente da salvare:', newUser);
+    
+    try {
+      saveUser(newUser);
+      setUsers(prev => [...prev, newUser]);
+      setShowAddUser(false);
+      alert(`Utente ${newUser.name} creato con successo!`);
+    } catch (error) {
+      console.error('Errore nella creazione utente:', error);
+      alert('Errore nella creazione dell\'utente. Controlla la console per i dettagli.');
+    }
   };
 
   const handleEditUser = (updatedUser: User) => {
-    saveUser(updatedUser);
-    setUsers(prev => prev.map(user => user.id === updatedUser.id ? updatedUser : user));
-    setEditingUser(null);
+    console.log('Aggiornando utente:', updatedUser);
+    
+    // Assicurati che la password sia presente
+    if (!updatedUser.password) {
+      alert('La password è obbligatoria!');
+      return;
+    }
+    
+    try {
+      saveUser(updatedUser);
+      setUsers(prev => prev.map(user => user.id === updatedUser.id ? updatedUser : user));
+      setEditingUser(null);
+      alert(`Utente ${updatedUser.name} aggiornato con successo!`);
+    } catch (error) {
+      console.error('Errore nell\'aggiornamento utente:', error);
+      alert('Errore nell\'aggiornamento dell\'utente. Controlla la console per i dettagli.');
+    }
   };
 
   const handleDeleteUser = (userId: string) => {
+    const userToDelete = users.find(u => u.id === userId);
+    if (userToDelete?.role === 'admin') {
+      alert('Non puoi eliminare un amministratore!');
+      return;
+    }
+    
     if (window.confirm('Sei sicuro di voler eliminare questo utente? Questa azione non può essere annullata.')) {
       deleteUser(userId);
       setUsers(prev => prev.filter(user => user.id !== userId));
@@ -266,6 +303,31 @@ const UserModal: React.FC<{
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validazione
+    if (!formData.username.trim()) {
+      alert('Username è obbligatorio!');
+      return;
+    }
+    if (!formData.name.trim()) {
+      alert('Nome è obbligatorio!');
+      return;
+    }
+    if (!formData.password.trim()) {
+      alert('Password è obbligatoria!');
+      return;
+    }
+    if (!formData.department.trim()) {
+      alert('Dipartimento è obbligatorio!');
+      return;
+    }
+    if (!formData.position.trim()) {
+      alert('Posizione è obbligatoria!');
+      return;
+    }
+    
+    console.log('Dati form da salvare:', formData);
+    
     if (user) {
       onSave({ ...user, ...formData });
     } else {
@@ -294,7 +356,7 @@ const UserModal: React.FC<{
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome Completo
+              Nome Completo *
             </label>
             <input
               type="text"
@@ -307,7 +369,7 @@ const UserModal: React.FC<{
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
+              Username *
             </label>
             <input
               type="text"
@@ -320,7 +382,7 @@ const UserModal: React.FC<{
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
+              Password *
             </label>
             <div className="flex space-x-2">
               <input
@@ -342,7 +404,7 @@ const UserModal: React.FC<{
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ruolo
+              Ruolo *
             </label>
             <select
               value={formData.role}
@@ -358,7 +420,7 @@ const UserModal: React.FC<{
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Dipartimento
+              Dipartimento *
             </label>
             <select
               value={formData.department}
@@ -376,7 +438,7 @@ const UserModal: React.FC<{
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Posizione
+              Posizione *
             </label>
             <input
               type="text"
