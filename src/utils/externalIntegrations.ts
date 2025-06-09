@@ -1,3 +1,5 @@
+import React from 'react';
+
 // External Integrations - Sistema di integrazione con servizi esterni
 export interface IntegrationConfig {
   name: string;
