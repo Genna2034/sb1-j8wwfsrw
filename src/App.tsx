@@ -9,6 +9,7 @@ import { Calendar } from './components/Calendar';
 import { Reports } from './components/Reports';
 import { Management } from './components/Management';
 import { MedicalRecords } from './components/MedicalRecords';
+import { AppointmentSystem } from './components/AppointmentSystem';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -43,6 +44,8 @@ function App() {
         return <StaffList />;
       case 'medical':
         return <MedicalRecords />;
+      case 'appointments':
+        return <AppointmentSystem />;
       case 'calendar':
         return <Calendar />;
       case 'reports':

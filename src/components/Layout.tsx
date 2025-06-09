@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart } from 'lucide-react';
+import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart, CalendarDays } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface LayoutProps {
@@ -33,6 +33,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'timetracker', label: 'Presenze', icon: Clock },
           { id: 'staff', label: 'Team', icon: Users },
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
+          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
           { id: 'reports', label: 'Report', icon: FileText },
           { id: 'management', label: 'Gestione', icon: Settings }
@@ -43,6 +44,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'timetracker', label: 'Presenze', icon: Clock },
           { id: 'staff', label: 'Equipe', icon: Users },
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
+          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
           { id: 'reports', label: 'Report', icon: FileText }
         ];
@@ -51,6 +53,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           ...baseTabs,
           { id: 'timetracker', label: 'Timbratura', icon: Clock },
           { id: 'medical', label: 'Pazienti', icon: Heart },
+          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen }
         ];
       default:
@@ -166,7 +169,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               © 2024 Cooperativa Sociale Emmanuel - Napoli
             </div>
             <div className="text-sm text-gray-500 mt-2 sm:mt-0">
-              Versione 2.0.0 - {getRoleDisplayName(user?.role || '')}
+              Versione 3.0.0 - Sistema Appuntamenti - {getRoleDisplayName(user?.role || '')}
             </div>
           </div>
         </div>
