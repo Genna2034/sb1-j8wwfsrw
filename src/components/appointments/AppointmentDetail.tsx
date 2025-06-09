@@ -308,7 +308,7 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
                       <DollarSign className="w-4 h-4 mr-1" />
                       €{appointment.cost.toFixed(2)}
                       {appointment.insuranceCovered && (
-                        <Shield className="w-4 h-4 ml-2 text-green-600\" title="Coperto da assicurazione" />
+                        <Shield className="w-4 h-4 ml-2 text-green-600\" title=\"Coperto da assicurazione" />
                       )}
                     </span>
                   </div>
