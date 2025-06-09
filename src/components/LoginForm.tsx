@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, Info, RefreshCw } from 'lucide-react';
 import { authenticateUser, saveUserSession, generateToken } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
 import { initializeDefaultUsers } from '../utils/userManagement';
@@ -15,6 +15,7 @@ export const LoginForm: React.FC = () => {
 
   useEffect(() => {
     // Inizializza gli utenti di default al caricamento del componente
+    console.log('🔄 Inizializzazione LoginForm...');
     initializeDefaultUsers();
   }, []);
 
@@ -23,22 +24,23 @@ export const LoginForm: React.FC = () => {
     setLoading(true);
     setError('');
 
+    console.log('🚀 Inizio processo di login...');
+
     try {
-      console.log('Tentativo di login con:', { username, password });
-      
       const user = authenticateUser(username, password);
       
       if (user) {
         const token = generateToken();
         saveUserSession(user, token);
         login(user, token);
-        console.log('Login completato con successo');
+        console.log('✅ Login completato con successo per:', user.name);
       } else {
         setError('Username o password non corretti.');
-        console.log('Login fallito - credenziali non valide');
+        setShowDebugInfo(true);
+        console.log('❌ Login fallito - credenziali non valide');
       }
     } catch (err) {
-      console.error('Errore durante il login:', err);
+      console.error('💥 Errore durante il login:', err);
       setError('Errore durante il login. Riprova.');
     } finally {
       setLoading(false);
@@ -46,10 +48,21 @@ export const LoginForm: React.FC = () => {
   };
 
   const resetSystem = () => {
+    console.log('🔄 Reset completo del sistema...');
     localStorage.clear();
     initializeDefaultUsers();
     setError('');
-    alert('Sistema resettato. Prova di nuovo con le tue credenziali.');
+    setShowDebugInfo(false);
+    setUsername('');
+    setPassword('');
+    alert('Sistema resettato completamente. Gli utenti di default sono stati ripristinati.');
+  };
+
+  const fillTestCredentials = () => {
+    setUsername('admin.emmanuel');
+    setPassword('Emmanuel2024!');
+    setError('');
+    setShowDebugInfo(false);
   };
 
   return (
@@ -131,16 +144,28 @@ export const LoginForm: React.FC = () => {
                 <div className="flex items-start">
                   <Info className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm text-blue-700 mb-2">
-                      Apri la console del browser (F12) per vedere le credenziali disponibili nel sistema.
+                    <p className="text-sm text-blue-700 mb-3">
+                      <strong>Debug Info:</strong> Apri la console del browser (F12) per vedere i dettagli completi.
                     </p>
-                    <button
-                      type="button"
-                      onClick={resetSystem}
-                      className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                    >
-                      Reset Sistema
-                    </button>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={fillTestCredentials}
+                        className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2"
+                      >
+                        Usa Credenziali Test
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetSystem}
+                        className="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                      >
+                        Reset Sistema
+                      </button>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-2">
+                      Credenziali test: admin.emmanuel / Emmanuel2024!
+                    </p>
                   </div>
                 </div>
               </div>

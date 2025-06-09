@@ -32,14 +32,22 @@ const DEFAULT_USERS: User[] = [
   }
 ];
 
+export const initializeDefaultUsers = (): void => {
+  console.log('Inizializzazione utenti di default...');
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
+  console.log('Utenti di default salvati:', DEFAULT_USERS);
+};
+
 export const getUsers = (): User[] => {
   const data = localStorage.getItem(STORAGE_KEY);
   if (!data) {
-    // Se non ci sono utenti salvati, inizializza con quelli di default
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
+    console.log('Nessun utente trovato, inizializzo quelli di default');
+    initializeDefaultUsers();
     return DEFAULT_USERS;
   }
-  return JSON.parse(data);
+  const users = JSON.parse(data);
+  console.log('Utenti caricati dal localStorage:', users);
+  return users;
 };
 
 export const saveUser = (user: User): void => {
@@ -53,12 +61,14 @@ export const saveUser = (user: User): void => {
   }
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  console.log('Utente salvato:', user);
 };
 
 export const deleteUser = (userId: string): void => {
   const users = getUsers();
   const filteredUsers = users.filter(u => u.id !== userId);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredUsers));
+  console.log('Utente eliminato:', userId);
 };
 
 export const generateUserId = (): string => {
@@ -66,21 +76,34 @@ export const generateUserId = (): string => {
 };
 
 export const getUserByCredentials = (username: string, password: string): User | null => {
-  console.log('Cercando utente con credenziali:', { username, password });
+  console.log('=== DEBUG LOGIN ===');
+  console.log('Credenziali inserite:', { username, password });
+  
   const users = getUsers();
-  console.log('Utenti disponibili:', users);
+  console.log('Tutti gli utenti nel sistema:', users);
   
-  const user = users.find(u => u.username === username && u.password === password);
-  console.log('Utente trovato:', user);
+  // Verifica esatta delle credenziali
+  const user = users.find(u => {
+    const usernameMatch = u.username === username;
+    const passwordMatch = u.password === password;
+    console.log(`Controllo utente ${u.username}:`, {
+      usernameMatch,
+      passwordMatch,
+      storedUsername: u.username,
+      storedPassword: u.password
+    });
+    return usernameMatch && passwordMatch;
+  });
   
-  return user || null;
-};
-
-// Funzione per inizializzare gli utenti di default se necessario
-export const initializeDefaultUsers = (): void => {
-  const existingUsers = localStorage.getItem(STORAGE_KEY);
-  if (!existingUsers) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
-    console.log('Utenti di default inizializzati');
+  if (user) {
+    console.log('✅ LOGIN RIUSCITO per:', user.name);
+    return user;
+  } else {
+    console.log('❌ LOGIN FALLITO - nessuna corrispondenza trovata');
+    console.log('Credenziali valide disponibili:');
+    users.forEach(u => {
+      console.log(`- ${u.username} / ${u.password} (${u.name})`);
+    });
+    return null;
   }
 };
