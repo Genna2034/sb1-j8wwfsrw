@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Performance Optimizer - Sistema di ottimizzazione automatica
 export class PerformanceOptimizer {
   private static instance: PerformanceOptimizer;
