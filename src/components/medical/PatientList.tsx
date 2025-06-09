@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, User, Phone, Calendar, AlertCircle, Edit, Eye, Filter, Users } from 'lucide-react';
 import { Patient } from '../../types/medical';
 import { getPatients } from '../../utils/medicalStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface PatientListProps {
   onSelectPatient: (patient: Patient) => void;

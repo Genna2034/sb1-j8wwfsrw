@@ -5,7 +5,7 @@ import { getAppointments, saveAppointment, deleteAppointment, getAppointmentStat
 import { AppointmentCalendar } from './appointments/AppointmentCalendar';
 import { AppointmentForm } from './appointments/AppointmentForm';
 import { AppointmentDetail } from './appointments/AppointmentDetail';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 export const AppointmentSystem: React.FC = () => {
   const { user } = useAuth();
