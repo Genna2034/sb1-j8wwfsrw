@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Eye, EyeOff, AlertCircle, Info, RefreshCw, Shield } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, Info, RefreshCw } from 'lucide-react';
 import { authenticateUser, saveUserSession, generateToken } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
 import { initializeDefaultUsers } from '../utils/userManagement';
@@ -10,6 +10,7 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showDemoCredentials, setShowDemoCredentials] = useState(false);
   const { login } = useAuth();
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export const LoginForm: React.FC = () => {
           console.log('✅ Login completato con successo');
         }, 50);
       } else {
-        setError('Username o password non corretti. Verifica le credenziali demo.');
+        setError('Username o password non corretti.');
         console.log('❌ Login fallito - credenziali non valide');
       }
     } catch (err) {
@@ -140,36 +141,60 @@ export const LoginForm: React.FC = () => {
               )}
             </button>
           </form>
+
+          {/* Toggle Demo Credentials */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <button
+              onClick={() => setShowDemoCredentials(!showDemoCredentials)}
+              className="w-full flex items-center justify-center text-sm text-gray-600 hover:text-sky-600 transition-colors"
+            >
+              <Info className="w-4 h-4 mr-2" />
+              {showDemoCredentials ? 'Nascondi' : 'Mostra'} credenziali demo
+            </button>
+          </div>
         </div>
 
-        {/* Demo Credentials */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-          <div className="flex items-center mb-4">
-            <Shield className="w-5 h-5 text-sky-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Credenziali Demo</h3>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            Clicca su una delle credenziali per compilare automaticamente il form:
-          </p>
-          <div className="space-y-3">
-            {demoCredentials.map((cred, index) => (
-              <button
-                key={index}
-                onClick={() => fillDemoCredentials(cred.username, cred.password)}
-                className="w-full p-4 bg-gray-50 hover:bg-sky-50 rounded-lg transition-all border border-gray-200 hover:border-sky-200 text-left"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium text-gray-900">{cred.name}</p>
-                    <p className="text-sm text-gray-600">{cred.username}</p>
-                    <p className="text-xs text-gray-500 font-mono">{cred.password}</p>
+        {/* Demo Credentials - Hidden by default */}
+        {showDemoCredentials && (
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <div className="flex items-center mb-4">
+              <Info className="w-5 h-5 text-sky-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Credenziali Demo</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Clicca su una delle credenziali per compilare automaticamente il form:
+            </p>
+            <div className="space-y-3">
+              {demoCredentials.map((cred, index) => (
+                <button
+                  key={index}
+                  onClick={() => fillDemoCredentials(cred.username, cred.password)}
+                  className="w-full p-4 bg-gray-50 hover:bg-sky-50 rounded-lg transition-all border border-gray-200 hover:border-sky-200 text-left"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-gray-900">{cred.name}</p>
+                      <p className="text-sm text-gray-600">{cred.username}</p>
+                      <p className="text-xs text-gray-500 font-mono">{cred.password}</p>
+                    </div>
+                    <span className="px-3 py-1 bg-sky-100 text-sky-700 text-xs rounded-full font-medium">
+                      {cred.role}
+                    </span>
                   </div>
-                  <span className="px-3 py-1 bg-sky-100 text-sky-700 text-xs rounded-full font-medium">
-                    {cred.role}
-                  </span>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* System Status */}
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <div className="flex items-center">
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse mr-3"></div>
+            <div>
+              <p className="text-sm font-medium text-green-800">Sistema Operativo</p>
+              <p className="text-xs text-green-600">Tutti i servizi sono attivi</p>
+            </div>
           </div>
         </div>
       </div>
