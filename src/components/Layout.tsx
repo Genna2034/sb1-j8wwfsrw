@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart, CalendarDays, Euro } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart, CalendarDays, Euro, MessageSquare } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { NotificationBadge, NotificationPanel } from './communications/NotificationPanel';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange }) => {
   const { user, logout } = useAuth();
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Listen for tab change events from dashboard quick actions
   useEffect(() => {
@@ -35,6 +37,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
           { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
           { id: 'billing', label: 'Fatturazione', icon: Euro },
+          { id: 'communications', label: 'Comunicazioni', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
           { id: 'reports', label: 'Report', icon: FileText },
           { id: 'management', label: 'Gestione', icon: Settings }
@@ -47,6 +50,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
           { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
           { id: 'billing', label: 'Fatturazione', icon: Euro },
+          { id: 'communications', label: 'Comunicazioni', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
           { id: 'reports', label: 'Report', icon: FileText }
         ];
@@ -56,6 +60,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'timetracker', label: 'Timbratura', icon: Clock },
           { id: 'medical', label: 'Pazienti', icon: Heart },
           { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
+          { id: 'communications', label: 'Messaggi', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen }
         ];
       default:
@@ -99,10 +104,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             
             <div className="flex items-center space-x-4">
               {/* Notifications */}
-              <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationBadge onClick={() => setShowNotifications(true)} />
 
               {/* User Menu */}
               <div className="flex items-center space-x-2">
@@ -171,11 +173,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               © 2024 Cooperativa Sociale Emmanuel - Napoli
             </div>
             <div className="text-sm text-gray-500 mt-2 sm:mt-0">
-              Versione 4.0.0 - Sistema Fatturazione - {getRoleDisplayName(user?.role || '')}
+              Versione 5.0.0 - Sistema Comunicazioni - {getRoleDisplayName(user?.role || '')}
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Notification Panel */}
+      <NotificationPanel 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
     </div>
   );
 };

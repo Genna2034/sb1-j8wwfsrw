@@ -11,6 +11,7 @@ import { Management } from './components/Management';
 import { MedicalRecords } from './components/MedicalRecords';
 import { AppointmentSystem } from './components/AppointmentSystem';
 import { BillingSystem } from './components/BillingSystem';
+import { CommunicationSystem } from './components/CommunicationSystem';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -49,6 +50,8 @@ function App() {
         return <AppointmentSystem />;
       case 'billing':
         return <BillingSystem />;
+      case 'communications':
+        return <CommunicationSystem />;
       case 'calendar':
         return <Calendar />;
       case 'reports':
