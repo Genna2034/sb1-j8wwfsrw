@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Eye, EyeOff, AlertCircle, Info, RefreshCw } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, Info, RefreshCw, Shield } from 'lucide-react';
 import { authenticateUser, saveUserSession, generateToken } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
 import { initializeDefaultUsers } from '../utils/userManagement';
@@ -10,11 +10,9 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showDebugInfo, setShowDebugInfo] = useState(false);
   const { login } = useAuth();
 
   useEffect(() => {
-    // Inizializza gli utenti di default al caricamento del componente
     console.log('🔄 Inizializzazione LoginForm...');
     initializeDefaultUsers();
   }, []);
@@ -32,11 +30,14 @@ export const LoginForm: React.FC = () => {
       if (user) {
         const token = generateToken();
         saveUserSession(user, token);
-        login(user, token);
-        console.log('✅ Login completato con successo per:', user.name);
+        
+        // Piccolo delay per assicurarsi che il localStorage sia aggiornato
+        setTimeout(() => {
+          login(user, token);
+          console.log('✅ Login completato con successo');
+        }, 50);
       } else {
-        setError('Username o password non corretti.');
-        setShowDebugInfo(true);
+        setError('Username o password non corretti. Verifica le credenziali demo.');
         console.log('❌ Login fallito - credenziali non valide');
       }
     } catch (err) {
@@ -47,23 +48,17 @@ export const LoginForm: React.FC = () => {
     }
   };
 
-  const resetSystem = () => {
-    console.log('🔄 Reset completo del sistema...');
-    localStorage.clear();
-    initializeDefaultUsers();
+  const fillDemoCredentials = (username: string, password: string) => {
+    setUsername(username);
+    setPassword(password);
     setError('');
-    setShowDebugInfo(false);
-    setUsername('');
-    setPassword('');
-    alert('Sistema resettato completamente. Gli utenti di default sono stati ripristinati.');
   };
 
-  const fillTestCredentials = () => {
-    setUsername('admin.emmanuel');
-    setPassword('Emmanuel2024!');
-    setError('');
-    setShowDebugInfo(false);
-  };
+  const demoCredentials = [
+    { username: 'admin.emmanuel', password: 'Emmanuel2024!', role: 'Amministratore', name: 'Mario Rossi' },
+    { username: 'gennaro.borriello', password: 'Coord2024!', role: 'Coordinatore', name: 'Gennaro Borriello' },
+    { username: 'infermiere.01', password: 'Staff2024!', role: 'Staff', name: 'Anna Verdi' }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center p-4">
@@ -126,48 +121,7 @@ export const LoginForm: React.FC = () => {
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
                 <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm text-red-700">{error}</p>
-                  <button
-                    type="button"
-                    onClick={() => setShowDebugInfo(!showDebugInfo)}
-                    className="text-xs text-red-600 hover:text-red-800 mt-1 underline"
-                  >
-                    {showDebugInfo ? 'Nascondi info debug' : 'Mostra info debug'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {showDebugInfo && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-start">
-                  <Info className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-blue-700 mb-3">
-                      <strong>Debug Info:</strong> Apri la console del browser (F12) per vedere i dettagli completi.
-                    </p>
-                    <div className="space-y-2">
-                      <button
-                        type="button"
-                        onClick={fillTestCredentials}
-                        className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2"
-                      >
-                        Usa Credenziali Test
-                      </button>
-                      <button
-                        type="button"
-                        onClick={resetSystem}
-                        className="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                      >
-                        Reset Sistema
-                      </button>
-                    </div>
-                    <p className="text-xs text-blue-600 mt-2">
-                      Credenziali test: admin.emmanuel / Emmanuel2024!
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
@@ -188,11 +142,35 @@ export const LoginForm: React.FC = () => {
           </form>
         </div>
 
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-sm text-gray-500">
-            © 2024 Cooperativa Sociale Emmanuel - Napoli
+        {/* Demo Credentials */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <div className="flex items-center mb-4">
+            <Shield className="w-5 h-5 text-sky-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Credenziali Demo</h3>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Clicca su una delle credenziali per compilare automaticamente il form:
           </p>
+          <div className="space-y-3">
+            {demoCredentials.map((cred, index) => (
+              <button
+                key={index}
+                onClick={() => fillDemoCredentials(cred.username, cred.password)}
+                className="w-full p-4 bg-gray-50 hover:bg-sky-50 rounded-lg transition-all border border-gray-200 hover:border-sky-200 text-left"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-medium text-gray-900">{cred.name}</p>
+                    <p className="text-sm text-gray-600">{cred.username}</p>
+                    <p className="text-xs text-gray-500 font-mono">{cred.password}</p>
+                  </div>
+                  <span className="px-3 py-1 bg-sky-100 text-sky-700 text-xs rounded-full font-medium">
+                    {cred.role}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
