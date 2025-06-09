@@ -38,8 +38,15 @@ export const getCurrentUser = (): User | null => {
 export const saveUserSession = (user: User, token: string): void => {
   try {
     console.log('💾 Salvando sessione per:', user.name);
-    localStorage.setItem('emmanuel_user', JSON.stringify(user));
+    
+    // Rimuovi la password prima di salvare per sicurezza
+    const userToSave = { ...user };
+    delete userToSave.password;
+    
+    localStorage.setItem('emmanuel_user', JSON.stringify(userToSave));
     localStorage.setItem('emmanuel_token', token);
+    localStorage.setItem('emmanuel_session_timestamp', new Date().toISOString());
+    
     console.log('✅ Sessione salvata con successo');
     
     // Verifica immediata del salvataggio
@@ -57,9 +64,14 @@ export const saveUserSession = (user: User, token: string): void => {
 
 export const clearUserSession = (): void => {
   console.log('🗑️ Cancellando sessione...');
-  localStorage.removeItem('emmanuel_user');
-  localStorage.removeItem('emmanuel_token');
-  console.log('✅ Sessione cancellata');
+  try {
+    localStorage.removeItem('emmanuel_user');
+    localStorage.removeItem('emmanuel_token');
+    localStorage.removeItem('emmanuel_session_timestamp');
+    console.log('✅ Sessione cancellata');
+  } catch (error) {
+    console.error('💥 Errore nella cancellazione sessione:', error);
+  }
 };
 
 export const generateToken = (): string => {
@@ -69,13 +81,51 @@ export const generateToken = (): string => {
 };
 
 export const isValidSession = (): boolean => {
-  const user = getCurrentUser();
-  const token = localStorage.getItem('emmanuel_token');
-  const isValid = !!(user && token);
-  console.log('🔍 Controllo validità sessione:', { 
-    hasUser: !!user, 
-    hasToken: !!token, 
-    isValid 
-  });
-  return isValid;
+  try {
+    const user = getCurrentUser();
+    const token = localStorage.getItem('emmanuel_token');
+    const timestamp = localStorage.getItem('emmanuel_session_timestamp');
+    
+    if (!user || !token || !timestamp) {
+      console.log('🔍 Sessione non valida: dati mancanti');
+      return false;
+    }
+    
+    // Verifica che la sessione non sia troppo vecchia (24 ore)
+    const sessionTime = new Date(timestamp);
+    const now = new Date();
+    const hoursDiff = (now.getTime() - sessionTime.getTime()) / (1000 * 60 * 60);
+    
+    if (hoursDiff > 24) {
+      console.log('🔍 Sessione scaduta:', hoursDiff, 'ore');
+      clearUserSession();
+      return false;
+    }
+    
+    const isValid = !!(user && token);
+    console.log('🔍 Controllo validità sessione:', { 
+      hasUser: !!user, 
+      hasToken: !!token, 
+      isValid,
+      hoursOld: hoursDiff.toFixed(1)
+    });
+    return isValid;
+  } catch (error) {
+    console.error('💥 Errore nel controllo sessione:', error);
+    clearUserSession();
+    return false;
+  }
+};
+
+// Funzione per verificare se l'utente ha i permessi per una determinata azione
+export const hasPermission = (user: User | null, requiredRole: string[]): boolean => {
+  if (!user) return false;
+  return requiredRole.includes(user.role);
+};
+
+// Funzione per il refresh del token (per implementazioni future)
+export const refreshToken = async (): Promise<string | null> => {
+  // Placeholder per implementazione futura
+  console.log('🔄 Refresh token non implementato');
+  return null;
 };

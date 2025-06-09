@@ -1,7 +1,8 @@
 import React from 'react';
 import { Clock, Users, Calendar, TrendingUp, CheckCircle, AlertCircle, Play, Square, Settings, UserPlus, BookOpen, Shield } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { useTimeTracker } from '../hooks/useTimeTracker';
+import { SystemStatus } from './SystemStatus';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -217,6 +218,9 @@ export const Dashboard: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* System Status - Solo per admin */}
+      {user?.role === 'admin' && <SystemStatus />}
 
       {/* Role-specific information */}
       {user?.role === 'admin' && (
