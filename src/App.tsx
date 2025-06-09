@@ -34,6 +34,7 @@ function App() {
     );
   }
 
+  // Se non autenticato, mostra il form di login
   if (!isAuthenticated) {
     return <LoginForm />;
   }

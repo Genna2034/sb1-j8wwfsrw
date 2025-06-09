@@ -39,21 +39,39 @@ export const LoginForm: React.FC = () => {
     console.log('🚀 Inizio processo di login...');
 
     try {
-      // Aggiungi un piccolo delay per evitare problemi di timing
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      console.log('🔍 Autenticazione utente...');
       const user = authenticateUser(username, password);
       
       if (user) {
+        console.log('✅ Utente autenticato:', user.name);
+        
         const token = generateToken();
+        console.log('🔑 Token generato');
+        
+        // Salva la sessione nel localStorage
         saveUserSession(user, token);
+        console.log('💾 Sessione salvata');
         
-        console.log('✅ Autenticazione riuscita, aggiorno stato...');
+        // Verifica che la sessione sia stata salvata correttamente
+        const savedUser = localStorage.getItem('emmanuel_user');
+        const savedToken = localStorage.getItem('emmanuel_token');
         
-        // Usa await per assicurarsi che il login sia completato
-        await login(user, token);
+        if (!savedUser || !savedToken) {
+          throw new Error('Errore nel salvataggio della sessione');
+        }
+        
+        console.log('✅ Sessione verificata, aggiorno stato...');
+        
+        // Aggiorna lo stato dell'autenticazione
+        login(user, token);
         
         console.log('✅ Login completato con successo');
+        
+        // Piccolo delay per assicurarsi che tutto sia aggiornato
+        setTimeout(() => {
+          console.log('🔄 Verifica finale stato autenticazione');
+        }, 100);
+        
       } else {
         setError('Username o password non corretti. Contatta l\'amministratore per le credenziali.');
         console.log('❌ Login fallito - credenziali non valide');
@@ -98,7 +116,7 @@ export const LoginForm: React.FC = () => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Inserisci username"
                 required
                 disabled={loading || !isInitialized}
@@ -115,7 +133,7 @@ export const LoginForm: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Inserisci password"
                   required
                   disabled={loading || !isInitialized}
@@ -123,7 +141,7 @@ export const LoginForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-sky-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-sky-600 transition-colors disabled:opacity-50"
                   disabled={loading}
                 >
                   {showPassword ? (
@@ -170,7 +188,7 @@ export const LoginForm: React.FC = () => {
         </div>
 
         {/* System Status */}
-        <div className={`border rounded-xl p-4 ${
+        <div className={`border rounded-xl p-4 transition-all ${
           isInitialized 
             ? 'bg-green-50 border-green-200' 
             : 'bg-yellow-50 border-yellow-200'
@@ -193,6 +211,20 @@ export const LoginForm: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Debug Info - Solo in sviluppo */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div className="text-center">
+              <p className="text-xs font-medium text-gray-800 mb-2">Credenziali di Test</p>
+              <div className="space-y-1 text-xs text-gray-600">
+                <p><strong>Admin:</strong> admin.emmanuel / Emmanuel2024!</p>
+                <p><strong>Coordinatore:</strong> gennaro.borriello / Coord2024!</p>
+                <p><strong>Staff:</strong> infermiere.01 / Staff2024!</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

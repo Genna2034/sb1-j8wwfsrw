@@ -17,8 +17,19 @@ export const useAuth = () => {
       console.log('🔄 Inizializzazione autenticazione...');
       
       try {
-        // Aggiungi un piccolo delay per assicurarsi che localStorage sia accessibile
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Assicurati che il DOM sia completamente caricato
+        if (document.readyState !== 'complete') {
+          await new Promise(resolve => {
+            if (document.readyState === 'complete') {
+              resolve(undefined);
+            } else {
+              window.addEventListener('load', () => resolve(undefined), { once: true });
+            }
+          });
+        }
+
+        // Piccolo delay per assicurarsi che localStorage sia accessibile
+        await new Promise(resolve => setTimeout(resolve, 50));
         
         if (isValidSession()) {
           const user = getCurrentUser();
@@ -66,26 +77,24 @@ export const useAuth = () => {
     initializeAuth();
   }, []);
 
-  const login = async (user: User, token: string) => {
+  const login = (user: User, token: string) => {
     console.log('🚀 Effettuando login per:', user.name);
     
-    try {
-      // Aggiorna immediatamente lo stato
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        token
-      });
-      
-      console.log('✅ Stato autenticazione aggiornato');
-      
-      // Forza un re-render per assicurarsi che il cambiamento sia visibile
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-    } catch (error) {
-      console.error('💥 Errore durante il login:', error);
-      throw error;
-    }
+    // Aggiorna lo stato in modo sincrono e immediato
+    const newAuthState = {
+      user,
+      isAuthenticated: true,
+      token
+    };
+    
+    setAuthState(newAuthState);
+    console.log('✅ Stato autenticazione aggiornato immediatamente');
+    
+    // Forza un re-render usando un callback per assicurarsi che il cambiamento sia applicato
+    setAuthState(prevState => {
+      console.log('🔄 Forzando aggiornamento stato auth');
+      return newAuthState;
+    });
   };
 
   const logout = () => {
