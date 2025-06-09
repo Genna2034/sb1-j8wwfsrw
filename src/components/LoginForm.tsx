@@ -53,11 +53,15 @@ export const LoginForm: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Logo and Title */}
         <div className="text-center">
-          <div className="mx-auto w-20 h-20 mb-4 flex items-center justify-center">
+          <div className="mx-auto w-32 h-32 mb-6 flex items-center justify-center bg-white rounded-2xl shadow-lg p-4">
             <img 
               src="/Screenshot 2025-06-09 alle 14.11.10.png" 
               alt="Cooperativa Emmanuel Logo" 
               className="w-full h-full object-contain"
+              style={{
+                filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))',
+                mixBlendMode: 'multiply'
+              }}
             />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Cooperativa Emmanuel</h2>
