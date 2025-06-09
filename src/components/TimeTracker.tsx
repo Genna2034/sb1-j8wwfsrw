@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Clock, Play, Square, Calendar, TrendingUp, Edit3, Save, X } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { useTimeTracker } from '../hooks/useTimeTracker';
 
 export const TimeTracker: React.FC = () => {
