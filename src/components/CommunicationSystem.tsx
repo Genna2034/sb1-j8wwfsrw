@@ -3,7 +3,7 @@ import { MessageSquare, Bell, CheckSquare, Users, Send, Calendar, Settings, BarC
 import { getMessages, getNotifications, getTasks } from '../utils/communicationStorage';
 import { MessageCenter } from './communications/MessageCenter';
 import { TaskManager } from './communications/TaskManager';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 export const CommunicationSystem: React.FC = () => {
   const { user } = useAuth();

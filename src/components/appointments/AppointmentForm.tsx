@@ -6,7 +6,7 @@ import { User as StaffUser } from '../../types/auth';
 import { getPatients } from '../../utils/medicalStorage';
 import { getUsers } from '../../utils/userManagement';
 import { generateAppointmentId, calculateEndTime, checkAppointmentConflicts, getAvailableSlots } from '../../utils/appointmentStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface AppointmentFormProps {
   appointment?: Appointment;

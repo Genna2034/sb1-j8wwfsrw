@@ -8,7 +8,7 @@ import { Message } from '../../types/communications';
 import { getMessages, saveMessage, markMessageAsRead, generateMessageId } from '../../utils/communicationStorage';
 import { getUsers } from '../../utils/userManagement';
 import { getPatients } from '../../utils/medicalStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const MessageCenter: React.FC = () => {
   const { user } = useAuth();
