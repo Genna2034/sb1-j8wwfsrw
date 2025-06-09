@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FileText, Download, Calendar, Clock, TrendingUp, Filter, BarChart3, PieChart } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { useTimeTracker } from '../hooks/useTimeTracker';
 
 export const Reports: React.FC = () => {
