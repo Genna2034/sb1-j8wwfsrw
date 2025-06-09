@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Activity, Server, Database, Wifi, AlertTriangle, CheckCircle, 
-  Clock, TrendingUp, BarChart3, Settings, RefreshCw, Download,
-  Cpu, HardDrive, Memory, Network, Shield, Zap
-} from 'lucide-react';
+import { Activity, Server, Database, Wifi, AlertTriangle, CheckCircle, Clock, TrendingUp, BarChart3, Settings, RefreshCw, Download, Cpu, HardDrive, MemoryStick as Memory, Network, Shield, Zap } from 'lucide-react';
 import { PerformanceOptimizer } from '../../utils/performanceOptimizer';
 import { ExternalIntegrationsManager } from '../../utils/externalIntegrations';
 import { DeploymentManager } from '../../utils/deploymentManager';
