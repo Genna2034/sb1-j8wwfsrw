@@ -6,7 +6,7 @@ import { Appointment } from '../../types/appointments';
 import { getPatients } from '../../utils/medicalStorage';
 import { getAppointments } from '../../utils/appointmentStorage';
 import { generateInvoiceId, getBillingSettings } from '../../utils/billingStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface InvoiceFormProps {
   invoice?: Invoice;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Bell, X, Check, CheckCheck, AlertTriangle, Info, Calendar, MessageSquare, Euro, Settings } from 'lucide-react';
 import { Notification } from '../../types/communications';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../utils/communicationStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface NotificationPanelProps {
   isOpen: boolean;

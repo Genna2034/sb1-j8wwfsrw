@@ -7,7 +7,7 @@ import { Task } from '../../types/communications';
 import { getTasks, saveTask, completeTask, generateTaskId } from '../../utils/communicationStorage';
 import { getUsers } from '../../utils/userManagement';
 import { getPatients } from '../../utils/medicalStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const TaskManager: React.FC = () => {
   const { user } = useAuth();

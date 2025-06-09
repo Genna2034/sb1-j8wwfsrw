@@ -7,7 +7,7 @@ import {
 import { Appointment } from '../../types/appointments';
 import { Patient } from '../../types/medical';
 import { getPatients } from '../../utils/medicalStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface AppointmentDetailProps {
   appointment: Appointment;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Search, Filter, Eye, Edit, Trash2, Download, Send, Euro, Calendar, User } from 'lucide-react';
 import { Invoice } from '../../types/billing';
 import { getInvoices, deleteInvoice } from '../../utils/billingStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface InvoiceListProps {
   onSelectInvoice: (invoice: Invoice) => void;
