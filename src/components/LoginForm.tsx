@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { authenticateUser, saveUserSession, generateToken } from '../utils/auth';
-import { useAuth } from '../hooks/useAuth';
+import { authenticateUser, generateToken } from '../utils/auth';
+import { useAuth } from '../contexts/AuthContext';
 import { initializeDefaultUsers } from '../utils/userManagement';
 
 export const LoginForm: React.FC = () => {
@@ -48,29 +48,12 @@ export const LoginForm: React.FC = () => {
         const token = generateToken();
         console.log('🔑 Token generato');
         
-        // Salva la sessione nel localStorage
-        saveUserSession(user, token);
-        console.log('💾 Sessione salvata');
+        console.log('✅ Chiamando login del context...');
         
-        // Verifica che la sessione sia stata salvata correttamente
-        const savedUser = localStorage.getItem('emmanuel_user');
-        const savedToken = localStorage.getItem('emmanuel_token');
-        
-        if (!savedUser || !savedToken) {
-          throw new Error('Errore nel salvataggio della sessione');
-        }
-        
-        console.log('✅ Sessione verificata, aggiorno stato...');
-        
-        // Aggiorna lo stato dell'autenticazione
+        // Il login del context gestisce tutto: salvataggio e aggiornamento stato
         login(user, token);
         
         console.log('✅ Login completato con successo');
-        
-        // Piccolo delay per assicurarsi che tutto sia aggiornato
-        setTimeout(() => {
-          console.log('🔄 Verifica finale stato autenticazione');
-        }, 100);
         
       } else {
         setError('Username o password non corretti. Contatta l\'amministratore per le credenziali.');

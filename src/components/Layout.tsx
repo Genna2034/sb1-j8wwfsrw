@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart, CalendarDays, Euro, MessageSquare } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { NotificationBadge, NotificationPanel } from './communications/NotificationPanel';
 
 interface LayoutProps {

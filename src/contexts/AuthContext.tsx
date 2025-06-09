@@ -1,8 +1,21 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types/auth';
-import { getCurrentUser, clearUserSession, isValidSession } from '../utils/auth';
+import { getCurrentUser, clearUserSession, isValidSession, saveUserSession } from '../utils/auth';
 
-export const useAuth = () => {
+interface AuthContextType extends AuthState {
+  login: (user: User, token: string) => void;
+  logout: () => void;
+  isLoading: boolean;
+  isInitialized: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
@@ -14,7 +27,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      console.log('🔄 Inizializzazione autenticazione...');
+      console.log('🔄 Inizializzazione AuthContext...');
       
       try {
         // Assicurati che il DOM sia completamente caricato
@@ -29,7 +42,7 @@ export const useAuth = () => {
         }
 
         // Piccolo delay per assicurarsi che localStorage sia accessibile
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         if (isValidSession()) {
           const user = getCurrentUser();
@@ -70,7 +83,7 @@ export const useAuth = () => {
       } finally {
         setIsLoading(false);
         setIsInitialized(true);
-        console.log('✅ Inizializzazione autenticazione completata');
+        console.log('✅ Inizializzazione AuthContext completata');
       }
     };
 
@@ -78,9 +91,12 @@ export const useAuth = () => {
   }, []);
 
   const login = (user: User, token: string) => {
-    console.log('🚀 Effettuando login per:', user.name);
+    console.log('🚀 AuthContext: Effettuando login per:', user.name);
     
-    // Aggiorna lo stato in modo sincrono e immediato
+    // Salva immediatamente nel localStorage
+    saveUserSession(user, token);
+    
+    // Aggiorna lo stato in modo sincrono
     const newAuthState = {
       user,
       isAuthenticated: true,
@@ -88,17 +104,11 @@ export const useAuth = () => {
     };
     
     setAuthState(newAuthState);
-    console.log('✅ Stato autenticazione aggiornato immediatamente');
-    
-    // Forza un re-render usando un callback per assicurarsi che il cambiamento sia applicato
-    setAuthState(prevState => {
-      console.log('🔄 Forzando aggiornamento stato auth');
-      return newAuthState;
-    });
+    console.log('✅ AuthContext: Stato autenticazione aggiornato');
   };
 
   const logout = () => {
-    console.log('🚪 Iniziando processo di logout...');
+    console.log('🚪 AuthContext: Iniziando processo di logout...');
     
     // Prima pulisci localStorage
     clearUserSession();
@@ -110,7 +120,7 @@ export const useAuth = () => {
       token: null
     });
     
-    console.log('✅ Logout completato');
+    console.log('✅ AuthContext: Logout completato');
     
     // Forza un refresh per assicurarsi che tutto sia pulito
     setTimeout(() => {
@@ -119,11 +129,25 @@ export const useAuth = () => {
     }, 100);
   };
 
-  return {
+  const contextValue: AuthContextType = {
     ...authState,
     login,
     logout,
     isLoading,
     isInitialized
   };
+
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
