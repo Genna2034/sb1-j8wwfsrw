@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Edit3, Trash2, Save, X, Shield, Users, Key, Eye, EyeOff, Mail, Send, Clock, CheckCircle } from 'lucide-react';
+import { UserPlus, Edit3, Trash2, Save, X, Shield, Users, Key, Eye, EyeOff, Mail, Send, Clock, CheckCircle, Activity, Settings, BarChart3 } from 'lucide-react';
 import { User } from '../types/auth';
 import { getUsers, saveUser, deleteUser, generateUserId } from '../utils/userManagement';
 import { sendCredentialsEmail, previewEmail, getEmailLogs } from '../utils/emailService';
+import { SystemMonitoring } from './admin/SystemMonitoring';
 
 export const Management: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -11,6 +12,7 @@ export const Management: React.FC = () => {
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
   const [emailLogs, setEmailLogs] = useState<any[]>([]);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'users' | 'monitoring' | 'settings'>('users');
 
   useEffect(() => {
     setUsers(getUsers());
@@ -172,232 +174,284 @@ export const Management: React.FC = () => {
   const coordinatorUsers = users.filter(user => user.role === 'coordinator');
   const staffUsers = users.filter(user => user.role === 'staff');
 
+  const tabs = [
+    { id: 'users', label: 'Gestione Utenti', icon: Users },
+    { id: 'monitoring', label: 'Monitoraggio Sistema', icon: Activity },
+    { id: 'settings', label: 'Configurazioni', icon: Settings }
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestione Sistema</h1>
-          <p className="text-gray-600 mt-1">Amministrazione utenti e invio credenziali automatico</p>
+          <h1 className="text-2xl font-bold text-gray-900">Amministrazione Sistema</h1>
+          <p className="text-gray-600 mt-1">Gestione utenti, monitoraggio e configurazioni avanzate</p>
         </div>
-        <button
-          onClick={() => setShowAddUser(true)}
-          className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-        >
-          <UserPlus className="w-4 h-4 mr-2" />
-          Nuovo Utente
-        </button>
+        {activeTab === 'users' && (
+          <button
+            onClick={() => setShowAddUser(true)}
+            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Nuovo Utente
+          </button>
+        )}
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Shield className="w-6 h-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Amministratori</p>
-              <p className="text-2xl font-bold text-purple-600">{adminUsers.length}</p>
-            </div>
-          </div>
+      {/* Navigation Tabs */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-purple-600 text-purple-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Coordinatori</p>
-              <p className="text-2xl font-bold text-blue-600">{coordinatorUsers.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Users className="w-6 h-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Staff</p>
-              <p className="text-2xl font-bold text-green-600">{staffUsers.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center">
-            <div className="p-3 bg-gray-100 rounded-lg">
-              <Key className="w-6 h-6 text-gray-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Totale Utenti</p>
-              <p className="text-2xl font-bold text-gray-600">{users.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <Mail className="w-6 h-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Email Inviate</p>
-              <p className="text-2xl font-bold text-orange-600">{emailLogs.length}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Email Logs */}
-      {emailLogs.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900">Log Invii Email</h3>
-          </div>
-          <div className="p-6">
-            <div className="space-y-3">
-              {emailLogs.slice(-5).reverse().map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+        <div className="p-6">
+          {/* Users Tab */}
+          {activeTab === 'users' && (
+            <div className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                   <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Credenziali inviate a {log.name}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {log.to} • {new Date(log.sentAt).toLocaleString('it-IT')}
-                      </p>
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <Shield className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Amministratori</p>
+                      <p className="text-2xl font-bold text-purple-600">{adminUsers.length}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-green-600 font-medium">Inviata</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Users List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">Utenti Registrati</h3>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Utente
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Credenziali
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ruolo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dipartimento
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Azioni
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        user.role === 'admin' ? 'bg-purple-100' :
-                        user.role === 'coordinator' ? 'bg-blue-100' : 'bg-green-100'
-                      }`}>
-                        <span className={`font-semibold ${
-                          user.role === 'admin' ? 'text-purple-600' :
-                          user.role === 'coordinator' ? 'text-blue-600' : 'text-green-600'
-                        }`}>
-                          {user.name.split(' ').map(n => n[0]).join('')}
-                        </span>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.position}</div>
-                      </div>
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                  <div className="flex items-center">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <Users className="w-6 h-6 text-blue-600" />
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 font-mono">{user.username}</div>
-                    <div className="text-sm text-gray-500 flex items-center">
-                      <span className="font-mono mr-2">
-                        {showPasswords[user.id] ? user.password || '••••••••' : '••••••••'}
-                      </span>
-                      <button
-                        onClick={() => togglePasswordVisibility(user.id)}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        {showPasswords[user.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Coordinatori</p>
+                      <p className="text-2xl font-bold text-blue-600">{coordinatorUsers.length}</p>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
-                      {getRoleDisplayName(user.role)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.department}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setEditingUser(user)}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="Modifica utente"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      
-                      <button
-                        onClick={() => handleResendCredentials(user)}
-                        disabled={sendingEmail === user.id}
-                        className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                        title="Invia credenziali via email"
-                      >
-                        {sendingEmail === user.id ? (
-                          <Clock className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Send className="w-4 h-4" />
-                        )}
-                      </button>
-                      
-                      <button
-                        onClick={() => handlePreviewEmail(user)}
-                        className="text-purple-600 hover:text-purple-900"
-                        title="Anteprima email"
-                      >
-                        <Mail className="w-4 h-4" />
-                      </button>
-                      
-                      {user.role !== 'admin' && (
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Elimina utente"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                  <div className="flex items-center">
+                    <div className="p-3 bg-green-100 rounded-lg">
+                      <Users className="w-6 h-6 text-green-600" />
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Staff</p>
+                      <p className="text-2xl font-bold text-green-600">{staffUsers.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                  <div className="flex items-center">
+                    <div className="p-3 bg-gray-100 rounded-lg">
+                      <Key className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Totale Utenti</p>
+                      <p className="text-2xl font-bold text-gray-600">{users.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                  <div className="flex items-center">
+                    <div className="p-3 bg-orange-100 rounded-lg">
+                      <Mail className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Email Inviate</p>
+                      <p className="text-2xl font-bold text-orange-600">{emailLogs.length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Logs */}
+              {emailLogs.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                  <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-900">Log Invii Email</h3>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-3">
+                      {emailLogs.slice(-5).reverse().map((log) => (
+                        <div key={log.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                Credenziali inviate a {log.name}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {log.to} • {new Date(log.sentAt).toLocaleString('it-IT')}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-xs text-green-600 font-medium">Inviata</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Users List */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div className="p-6 border-b border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900">Utenti Registrati</h3>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Utente
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Credenziali
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ruolo
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Dipartimento
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Azioni
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {users.map((user) => (
+                        <tr key={user.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                user.role === 'admin' ? 'bg-purple-100' :
+                                user.role === 'coordinator' ? 'bg-blue-100' : 'bg-green-100'
+                              }`}>
+                                <span className={`font-semibold ${
+                                  user.role === 'admin' ? 'text-purple-600' :
+                                  user.role === 'coordinator' ? 'text-blue-600' : 'text-green-600'
+                                }`}>
+                                  {user.name.split(' ').map(n => n[0]).join('')}
+                                </span>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                                <div className="text-sm text-gray-500">{user.position}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900 font-mono">{user.username}</div>
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <span className="font-mono mr-2">
+                                {showPasswords[user.id] ? user.password || '••••••••' : '••••••••'}
+                              </span>
+                              <button
+                                onClick={() => togglePasswordVisibility(user.id)}
+                                className="text-gray-400 hover:text-gray-600"
+                              >
+                                {showPasswords[user.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
+                              {getRoleDisplayName(user.role)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {user.department}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => setEditingUser(user)}
+                                className="text-blue-600 hover:text-blue-900"
+                                title="Modifica utente"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              
+                              <button
+                                onClick={() => handleResendCredentials(user)}
+                                disabled={sendingEmail === user.id}
+                                className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                                title="Invia credenziali via email"
+                              >
+                                {sendingEmail === user.id ? (
+                                  <Clock className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Send className="w-4 h-4" />
+                                )}
+                              </button>
+                              
+                              <button
+                                onClick={() => handlePreviewEmail(user)}
+                                className="text-purple-600 hover:text-purple-900"
+                                title="Anteprima email"
+                              >
+                                <Mail className="w-4 h-4" />
+                              </button>
+                              
+                              {user.role !== 'admin' && (
+                                <button
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                  title="Elimina utente"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Monitoring Tab */}
+          {activeTab === 'monitoring' && <SystemMonitoring />}
+
+          {/* Settings Tab */}
+          {activeTab === 'settings' && (
+            <div className="text-center py-8 text-gray-500">
+              <Settings className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>Configurazioni Sistema</p>
+              <p className="text-sm">Funzionalità in sviluppo</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -417,7 +471,7 @@ export const Management: React.FC = () => {
   );
 };
 
-// User Modal Component
+// User Modal Component (unchanged from previous implementation)
 const UserModal: React.FC<{
   user?: User | null;
   onSave: (user: any) => void;

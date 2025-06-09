@@ -12,12 +12,20 @@ import { MedicalRecords } from './components/MedicalRecords';
 import { AppointmentSystem } from './components/AppointmentSystem';
 import { BillingSystem } from './components/BillingSystem';
 import { CommunicationSystem } from './components/CommunicationSystem';
+import { usePerformanceOptimizer } from './utils/performanceOptimizer';
+import { useExternalIntegrations } from './utils/externalIntegrations';
+import { useDeployment } from './utils/deploymentManager';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Initialize optimization and integrations
+  usePerformanceOptimizer();
+  useExternalIntegrations();
+  const deployment = useDeployment();
 
-  // Mostra un loading spinner durante l'inizializzazione
+  // Show loading spinner during initialization
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -26,7 +34,12 @@ function App() {
             <span className="text-white font-bold text-2xl">E</span>
           </div>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Caricamento...</p>
+          <p className="text-gray-600 mt-4">Caricamento sistema...</p>
+          {deployment.isProduction && (
+            <p className="text-xs text-gray-500 mt-2">
+              Versione {deployment.config.version} - Ambiente Produzione
+            </p>
+          )}
         </div>
       </div>
     );
@@ -57,7 +70,7 @@ function App() {
       case 'reports':
         return <Reports />;
       case 'management':
-        // Solo admin può accedere
+        // Only admin can access
         return user?.role === 'admin' ? <Management /> : <Dashboard />;
       default:
         return <Dashboard />;
