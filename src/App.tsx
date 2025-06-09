@@ -10,6 +10,7 @@ import { Reports } from './components/Reports';
 import { Management } from './components/Management';
 import { MedicalRecords } from './components/MedicalRecords';
 import { AppointmentSystem } from './components/AppointmentSystem';
+import { BillingSystem } from './components/BillingSystem';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -46,6 +47,8 @@ function App() {
         return <MedicalRecords />;
       case 'appointments':
         return <AppointmentSystem />;
+      case 'billing':
+        return <BillingSystem />;
       case 'calendar':
         return <Calendar />;
       case 'reports':
