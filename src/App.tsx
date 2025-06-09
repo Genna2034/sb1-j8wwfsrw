@@ -8,6 +8,7 @@ import { StaffList } from './components/StaffList';
 import { Calendar } from './components/Calendar';
 import { Reports } from './components/Reports';
 import { Management } from './components/Management';
+import { MedicalRecords } from './components/MedicalRecords';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -40,6 +41,8 @@ function App() {
         return <TimeTracker />;
       case 'staff':
         return <StaffList />;
+      case 'medical':
+        return <MedicalRecords />;
       case 'calendar':
         return <Calendar />;
       case 'reports':
