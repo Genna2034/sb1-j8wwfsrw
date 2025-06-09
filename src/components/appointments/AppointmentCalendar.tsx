@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Clock, User, MapPin, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Appointment, StaffSchedule } from '../../types/appointments';
 import { getAppointments, getStaffSchedules } from '../../utils/appointmentStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface AppointmentCalendarProps {
   onSelectAppointment: (appointment: Appointment) => void;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar as CalendarIcon, Clock, MapPin, User, ChevronLeft, ChevronRight, Plus, Edit3, Trash2, UserPlus } from 'lucide-react';
 import { Shift, Patient } from '../types/auth';
 import { getShifts, saveShift, deleteShift, getPatients, savePatient } from '../utils/storage';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Calendar: React.FC = () => {
   const { user } = useAuth();

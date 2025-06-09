@@ -5,7 +5,7 @@ import { getInvoices, saveInvoice, deleteInvoice, generateFinancialSummary } fro
 import { InvoiceList } from './billing/InvoiceList';
 import { InvoiceForm } from './billing/InvoiceForm';
 import { FinancialDashboard } from './billing/FinancialDashboard';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 export const BillingSystem: React.FC = () => {
   const { user } = useAuth();

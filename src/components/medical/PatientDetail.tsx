@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { Patient, MedicalRecord, VitalSigns } from '../../types/medical';
 import { getMedicalRecords, saveMedicalRecord, generateRecordId } from '../../utils/medicalStorage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface PatientDetailProps {
   patient: Patient;
