@@ -15,6 +15,14 @@ export const authenticateUser = (username: string, password: string): User | nul
   }
   
   console.log('Login fallito - credenziali non valide');
+  console.log('Credenziali disponibili nel sistema:');
+  
+  // Debug: mostra le credenziali disponibili nella console
+  const allUsers = JSON.parse(localStorage.getItem('emmanuel_users') || '[]');
+  allUsers.forEach((u: User) => {
+    console.log(`- Username: ${u.username}, Password: ${u.password}, Nome: ${u.name}`);
+  });
+  
   return null;
 };
 

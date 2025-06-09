@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
 import { authenticateUser, saveUserSession, generateToken } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
 import { initializeDefaultUsers } from '../utils/userManagement';
@@ -10,6 +10,7 @@ export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
   const { login } = useAuth();
 
   useEffect(() => {
@@ -42,6 +43,13 @@ export const LoginForm: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetSystem = () => {
+    localStorage.clear();
+    initializeDefaultUsers();
+    setError('');
+    alert('Sistema resettato. Prova di nuovo con le tue credenziali.');
   };
 
   return (
@@ -105,7 +113,36 @@ export const LoginForm: React.FC = () => {
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
                 <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-red-700">{error}</p>
+                <div className="flex-1">
+                  <p className="text-sm text-red-700">{error}</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowDebugInfo(!showDebugInfo)}
+                    className="text-xs text-red-600 hover:text-red-800 mt-1 underline"
+                  >
+                    {showDebugInfo ? 'Nascondi info debug' : 'Mostra info debug'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showDebugInfo && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <Info className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-blue-700 mb-2">
+                      Apri la console del browser (F12) per vedere le credenziali disponibili nel sistema.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={resetSystem}
+                      className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                    >
+                      Reset Sistema
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
