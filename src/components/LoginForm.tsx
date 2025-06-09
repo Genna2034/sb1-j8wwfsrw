@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { authenticateUser, saveUserSession, generateToken } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
 import { initializeDefaultUsers } from '../utils/userManagement';
@@ -33,7 +33,7 @@ export const LoginForm: React.FC = () => {
         login(user, token);
         console.log('Login completato con successo');
       } else {
-        setError('Username o password non corretti. Verifica le credenziali demo.');
+        setError('Username o password non corretti.');
         console.log('Login fallito - credenziali non valide');
       }
     } catch (err) {
@@ -43,18 +43,6 @@ export const LoginForm: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const fillDemoCredentials = (username: string, password: string) => {
-    setUsername(username);
-    setPassword(password);
-    setError('');
-  };
-
-  const demoCredentials = [
-    { username: 'admin.emmanuel', password: 'Emmanuel2024!', role: 'Amministratore', name: 'Mario Rossi' },
-    { username: 'gennaro.borriello', password: 'Coord2024!', role: 'Coordinatore', name: 'Gennaro Borriello' },
-    { username: 'infermiere.01', password: 'Staff2024!', role: 'Staff', name: 'Anna Verdi' }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center p-4">
@@ -138,35 +126,11 @@ export const LoginForm: React.FC = () => {
           </form>
         </div>
 
-        {/* Demo Credentials */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-          <div className="flex items-center mb-4">
-            <Shield className="w-5 h-5 text-sky-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Credenziali Demo</h3>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            Clicca su una delle credenziali per compilare automaticamente il form:
+        {/* Footer */}
+        <div className="text-center">
+          <p className="text-sm text-gray-500">
+            © 2024 Cooperativa Sociale Emmanuel - Napoli
           </p>
-          <div className="space-y-3">
-            {demoCredentials.map((cred, index) => (
-              <button
-                key={index}
-                onClick={() => fillDemoCredentials(cred.username, cred.password)}
-                className="w-full p-4 bg-gray-50 hover:bg-sky-50 rounded-lg transition-all border border-gray-200 hover:border-sky-200 text-left"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium text-gray-900">{cred.name}</p>
-                    <p className="text-sm text-gray-600">{cred.username}</p>
-                    <p className="text-xs text-gray-500 font-mono">{cred.password}</p>
-                  </div>
-                  <span className="px-3 py-1 bg-sky-100 text-sky-700 text-xs rounded-full font-medium">
-                    {cred.role}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </div>
