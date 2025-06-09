@@ -5,7 +5,7 @@ import { getPatients, savePatient } from '../utils/medicalStorage';
 import { PatientList } from './medical/PatientList';
 import { PatientDetail } from './medical/PatientDetail';
 import { PatientForm } from './medical/PatientForm';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 
 export const MedicalRecords: React.FC = () => {
   const { user } = useAuth();
