@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CheckSquare, Plus, Search, Filter, Calendar, User, AlertTriangle, 
-  Clock, CheckCircle, XCircle, Edit, Trash2, Flag
+  Clock, CheckCircle, XCircle, Edit, Trash2, Flag, Bell
 } from 'lucide-react';
 import { Task } from '../../types/communications';
 import { getTasks, saveTask, completeTask, generateTaskId } from '../../utils/communicationStorage';
 import { getUsers } from '../../utils/userManagement';
 import { getPatients } from '../../utils/medicalStorage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../contexts/NotificationContext';
+import { createTaskNotification } from '../../utils/notificationUtils';
 
 export const TaskManager: React.FC = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotifications();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -53,7 +56,7 @@ export const TaskManager: React.FC = () => {
     setShowTaskForm(true);
   };
 
-  const handleSaveTask = (taskData: Partial<Task>) => {
+  const handleSaveTask = async (taskData: Partial<Task>) => {
     const task: Task = {
       id: editingTask?.id || generateTaskId(),
       title: taskData.title || '',
@@ -79,17 +82,49 @@ export const TaskManager: React.FC = () => {
     loadTasks();
     setShowTaskForm(false);
     setEditingTask(null);
+    
+    // Invia notifica se è un nuovo task o se è stato riassegnato
+    if (!editingTask || editingTask.assignedTo !== task.assignedTo) {
+      await createTaskNotification(task.assignedTo, task, 'new');
+      showNotification(
+        'Task assegnato',
+        `Il task "${task.title}" è stato assegnato a ${task.assignedToName}`
+      );
+    }
   };
 
-  const handleCompleteTask = (taskId: string) => {
+  const handleCompleteTask = async (taskId: string) => {
     completeTask(taskId);
     loadTasks();
+    
+    // Trova il task completato
+    const completedTask = tasks.find(t => t.id === taskId);
+    if (completedTask) {
+      await createTaskNotification(completedTask.assignedBy, completedTask, 'completed');
+      showNotification(
+        'Task completato',
+        `Il task "${completedTask.title}" è stato completato`
+      );
+    }
   };
 
   const handleDeleteTask = (taskId: string) => {
     if (window.confirm('Sei sicuro di voler eliminare questo task?')) {
       // Implementation for delete task
       loadTasks();
+    }
+  };
+
+  const handleSendReminder = async (task: Task) => {
+    try {
+      await createTaskNotification(task.assignedTo, task, 'reminder');
+      showNotification(
+        'Promemoria inviato',
+        `Promemoria inviato per il task "${task.title}"`
+      );
+    } catch (error) {
+      console.error('Errore nell\'invio del promemoria:', error);
+      alert('Errore nell\'invio del promemoria');
     }
   };
 
@@ -349,13 +384,23 @@ export const TaskManager: React.FC = () => {
                 
                 <div className="flex items-center space-x-2 ml-4">
                   {task.status !== 'completed' && task.status !== 'cancelled' && (
-                    <button
-                      onClick={() => handleCompleteTask(task.id)}
-                      className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
-                      title="Completa"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleCompleteTask(task.id)}
+                        className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
+                        title="Completa"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                      </button>
+                      
+                      <button
+                        onClick={() => handleSendReminder(task)}
+                        className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Invia promemoria"
+                      >
+                        <Bell className="w-4 h-4" />
+                      </button>
+                    </>
                   )}
                   
                   <button

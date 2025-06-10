@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  User, Clock, MapPin, Phone, Calendar, AlertCircle, 
-  Edit, Trash2, CheckCircle, XCircle, RotateCcw, 
-  FileText, DollarSign, Shield, Bell
+  User, Phone, Mail, MapPin, Calendar, AlertTriangle, 
+  Pill, Activity, FileText, Clock, Plus, Edit, Save, X,
+  Heart, Thermometer, Droplets, Weight, CheckCircle, XCircle, RotateCcw, 
+  Paperclip, Eye, EyeOff, Bell
 } from 'lucide-react';
 import { Appointment } from '../../types/appointments';
 import { Patient } from '../../types/medical';
 import { getPatients } from '../../utils/medicalStorage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../contexts/NotificationContext';
+import { createAppointmentNotification } from '../../utils/notificationUtils';
 
 interface AppointmentDetailProps {
   appointment: Appointment;
@@ -25,6 +28,7 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
   onClose
 }) => {
   const { user } = useAuth();
+  const { showNotification } = useNotifications();
   const [patient, setPatient] = useState<Patient | null>(null);
 
   React.useEffect(() => {
@@ -48,11 +52,11 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-red-600 bg-red-50';
-      case 'high': return 'text-orange-600 bg-orange-50';
-      case 'normal': return 'text-blue-600 bg-blue-50';
-      case 'low': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'urgent': return 'border-l-red-500 bg-red-50';
+      case 'high': return 'border-l-orange-500 bg-orange-50';
+      case 'normal': return 'border-l-blue-500 bg-blue-50';
+      case 'low': return 'border-l-gray-500 bg-gray-50';
+      default: return 'border-l-gray-500 bg-gray-50';
     }
   };
 
@@ -106,15 +110,49 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
 
   const canChangeStatus = canEdit && appointment.status !== 'completed' && appointment.status !== 'cancelled';
 
-  const handleStatusChange = (newStatus: Appointment['status']) => {
+  const handleStatusChange = async (newStatus: Appointment['status']) => {
     if (window.confirm(`Confermi il cambio di stato a "${getStatusDisplayName(newStatus)}"?`)) {
       onStatusChange(newStatus);
+      
+      // Invia notifica di cambio stato
+      if (newStatus === 'confirmed') {
+        await createAppointmentNotification(appointment.staffId, appointment, 'confirmation');
+        showNotification(
+          'Appuntamento confermato',
+          `L'appuntamento con ${appointment.patientName} è stato confermato`
+        );
+      } else if (newStatus === 'cancelled') {
+        await createAppointmentNotification(appointment.staffId, appointment, 'cancellation');
+        showNotification(
+          'Appuntamento cancellato',
+          `L'appuntamento con ${appointment.patientName} è stato cancellato`
+        );
+      } else if (newStatus === 'rescheduled') {
+        await createAppointmentNotification(appointment.staffId, appointment, 'rescheduled');
+        showNotification(
+          'Appuntamento riprogrammato',
+          `L'appuntamento con ${appointment.patientName} è stato riprogrammato`
+        );
+      }
     }
   };
 
   const handleDelete = () => {
     if (window.confirm('Sei sicuro di voler eliminare questo appuntamento? Questa azione non può essere annullata.')) {
       onDelete();
+    }
+  };
+
+  const handleSendReminder = async () => {
+    try {
+      await createAppointmentNotification(appointment.staffId, appointment, 'reminder');
+      showNotification(
+        'Promemoria inviato',
+        `Promemoria inviato per l'appuntamento con ${appointment.patientName}`
+      );
+    } catch (error) {
+      console.error('Errore nell\'invio del promemoria:', error);
+      alert('Errore nell\'invio del promemoria');
     }
   };
 
@@ -241,7 +279,7 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
               {patient?.personalInfo.emergencyContact && (
                 <div className="bg-red-50 rounded-lg p-4">
                   <h5 className="font-medium text-red-900 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-2" />
+                    <AlertTriangle className="w-4 h-4 mr-2" />
                     Contatto di Emergenza
                   </h5>
                   <div className="mt-2 text-sm text-red-800">
@@ -308,7 +346,7 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
                       <DollarSign className="w-4 h-4 mr-1" />
                       €{appointment.cost.toFixed(2)}
                       {appointment.insuranceCovered && (
-                        <Shield className="w-4 h-4 ml-2 text-green-600\" title="Coperto da assicurazione" />
+                        <Shield className="w-4 h-4 ml-2 text-green-600" title="Coperto da assicurazione" />
                       )}
                     </span>
                   </div>
@@ -384,41 +422,47 @@ export const AppointmentDetail: React.FC<AppointmentDetailProps> = ({
           </div>
 
           {/* Quick Actions */}
-          {canChangeStatus && (
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
-              <h5 className="w-full font-medium text-gray-900 mb-2">Azioni Rapide:</h5>
-              
-              {appointment.status !== 'cancelled' && (
-                <button
-                  onClick={() => handleStatusChange('cancelled')}
-                  className="flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                >
-                  <XCircle className="w-4 h-4 mr-1" />
-                  Cancella
-                </button>
-              )}
-              
-              {appointment.status !== 'rescheduled' && appointment.status !== 'completed' && (
-                <button
-                  onClick={() => handleStatusChange('rescheduled')}
-                  className="flex items-center px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-                >
-                  <RotateCcw className="w-4 h-4 mr-1" />
-                  Riprogramma
-                </button>
-              )}
-              
-              {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && (
-                <button
-                  onClick={() => handleStatusChange('no-show')}
-                  className="flex items-center px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-                >
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  Paziente Assente
-                </button>
-              )}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
+            <h5 className="w-full font-medium text-gray-900 mb-2">Azioni Rapide:</h5>
+            
+            <button
+              onClick={handleSendReminder}
+              className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Bell className="w-4 h-4 mr-1" />
+              Invia Promemoria
+            </button>
+            
+            {appointment.status !== 'cancelled' && (
+              <button
+                onClick={() => handleStatusChange('cancelled')}
+                className="flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+              >
+                <XCircle className="w-4 h-4 mr-1" />
+                Cancella
+              </button>
+            )}
+            
+            {appointment.status !== 'rescheduled' && appointment.status !== 'completed' && (
+              <button
+                onClick={() => handleStatusChange('rescheduled')}
+                className="flex items-center px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+              >
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Riprogramma
+              </button>
+            )}
+            
+            {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && (
+              <button
+                onClick={() => handleStatusChange('no-show')}
+                className="flex items-center px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+              >
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                Paziente Assente
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

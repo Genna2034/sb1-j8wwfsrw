@@ -1,13 +1,35 @@
-import React from 'react';
-import { Clock, Users, Calendar, TrendingUp, CheckCircle, AlertCircle, Play, Square, Settings, UserPlus, BookOpen, Shield } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Clock, Users, Calendar, TrendingUp, CheckCircle, AlertCircle, Play, Square, Settings, UserPlus, BookOpen, Shield, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTimeTracker } from '../hooks/useTimeTracker';
+import { useNotifications } from '../contexts/NotificationContext';
+import { useNotificationScheduler } from '../hooks/useNotificationScheduler';
 import { SystemStatus } from './SystemStatus';
 import { SupabaseStatus } from './system/SupabaseStatus';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { getTodayHours, getWeekHours, isWorking, currentEntry, clockIn, clockOut } = useTimeTracker(user?.id || '');
+  const { showNotification, isPermissionGranted, requestPermission } = useNotifications();
+  const { runNow: runNotificationScheduler, lastRun } = useNotificationScheduler();
+
+  useEffect(() => {
+    // Richiedi permesso notifiche all'avvio
+    if (!isPermissionGranted) {
+      requestPermission();
+    }
+    
+    // Mostra notifica di benvenuto
+    if (isPermissionGranted) {
+      showNotification(
+        `Benvenuto ${user?.name}`,
+        `Accesso effettuato come ${user?.role}. Buon lavoro!`
+      );
+    }
+    
+    // Esegui scheduler notifiche
+    runNotificationScheduler();
+  }, [isPermissionGranted]);
 
   const handleQuickClockAction = () => {
     if (isWorking) {
@@ -137,6 +159,25 @@ export const Dashboard: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Notification Status */}
+      {!isPermissionGranted && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+          <div className="flex items-center mb-3">
+            <Bell className="w-6 h-6 text-yellow-600 mr-3" />
+            <h3 className="text-lg font-semibold text-yellow-800">Abilita Notifiche</h3>
+          </div>
+          <p className="text-yellow-700 mb-4">
+            Attiva le notifiche per ricevere promemoria di appuntamenti, messaggi e aggiornamenti importanti anche quando non stai utilizzando l'applicazione.
+          </p>
+          <button
+            onClick={() => requestPermission()}
+            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+          >
+            Attiva Notifiche
+          </button>
+        </div>
+      )}
 
       {/* Quick Clock Action - Solo per staff e coordinatori */}
       {(user?.role === 'staff' || user?.role === 'coordinator') && (

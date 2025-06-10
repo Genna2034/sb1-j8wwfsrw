@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Check, CheckCheck, AlertTriangle, Info, Calendar, MessageSquare, Euro, Settings } from 'lucide-react';
-import { Notification } from '../../types/communications';
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../utils/communicationStorage';
+import { Bell, X, Check, CheckCheck, AlertTriangle, Info, Calendar, MessageSquare, Euro, Settings, Volume2, Volume1, VolumeX, BellOff, BellRing } from 'lucide-react';
+import { useNotifications } from '../../contexts/NotificationContext';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NotificationPanelProps {
@@ -11,35 +10,51 @@ interface NotificationPanelProps {
 
 export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }) => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead, 
+    refreshNotifications,
+    isPermissionGranted,
+    isPushEnabled,
+    requestPermission,
+    enablePush,
+    disablePush
+  } = useNotifications();
+  const [loading, setLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      loadNotifications();
+      refreshNotifications();
     }
-  }, [isOpen, user]);
+  }, [isOpen]);
 
-  const loadNotifications = () => {
+  const handleMarkAsRead = async (notificationId: string) => {
+    await markAsRead(notificationId);
+  };
+
+  const handleMarkAllAsRead = async () => {
     setLoading(true);
-    try {
-      const userNotifications = getNotifications(user?.id);
-      setNotifications(userNotifications);
-    } catch (error) {
-      console.error('Errore nel caricamento notifiche:', error);
-    } finally {
-      setLoading(false);
+    await markAllAsRead();
+    setLoading(false);
+  };
+
+  const handleRequestPermission = async () => {
+    setLoading(true);
+    await requestPermission();
+    setLoading(false);
+  };
+
+  const handleTogglePush = async () => {
+    setLoading(true);
+    if (isPushEnabled) {
+      await disablePush();
+    } else {
+      await enablePush();
     }
-  };
-
-  const handleMarkAsRead = (notificationId: string) => {
-    markNotificationAsRead(notificationId);
-    loadNotifications();
-  };
-
-  const handleMarkAllAsRead = () => {
-    markAllNotificationsAsRead(user?.id || '');
-    loadNotifications();
+    setLoading(false);
   };
 
   const getNotificationIcon = (type: string) => {
@@ -81,8 +96,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
     return date.toLocaleDateString('it-IT');
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
   if (!isOpen) return null;
 
   return (
@@ -98,11 +111,29 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
+                  disabled={loading}
                   className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  Segna tutte come lette
+                  {loading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Elaborazione...
+                    </span>
+                  ) : (
+                    'Segna tutte come lette'
+                  )}
                 </button>
               )}
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Impostazioni notifiche"
+              >
+                <Settings className="w-5 h-5 text-gray-500" />
+              </button>
               <button
                 onClick={onClose}
                 className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -112,6 +143,62 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
             </div>
           </div>
         </div>
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <div className="p-4 border-b border-gray-100 bg-gray-50">
+            <h4 className="font-medium text-gray-900 mb-3">Impostazioni Notifiche</h4>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <BellRing className="w-5 h-5 text-blue-600 mr-2" />
+                  <span className="text-sm text-gray-700">Notifiche browser</span>
+                </div>
+                <button
+                  onClick={handleRequestPermission}
+                  disabled={loading || isPermissionGranted}
+                  className={`px-3 py-1 rounded text-sm ${
+                    isPermissionGranted 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  } transition-colors disabled:opacity-50`}
+                >
+                  {isPermissionGranted ? 'Attive' : 'Attiva'}
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Bell className="w-5 h-5 text-purple-600 mr-2" />
+                  <span className="text-sm text-gray-700">Notifiche push</span>
+                </div>
+                <button
+                  onClick={handleTogglePush}
+                  disabled={loading || !isPermissionGranted}
+                  className={`px-3 py-1 rounded text-sm ${
+                    isPushEnabled 
+                      ? 'bg-green-100 text-green-800 hover:bg-red-100 hover:text-red-800' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  } transition-colors disabled:opacity-50`}
+                >
+                  {isPushEnabled ? 'Disattiva' : 'Attiva'}
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Volume2 className="w-5 h-5 text-orange-600 mr-2" />
+                  <span className="text-sm text-gray-700">Suono notifiche</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto">
@@ -194,23 +281,13 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
 export const NotificationBadge: React.FC<{
   onClick: () => void;
 }> = ({ onClick }) => {
-  const { user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { unreadCount, refreshNotifications } = useNotifications();
 
   useEffect(() => {
-    const loadUnreadCount = () => {
-      const notifications = getNotifications(user?.id);
-      const unread = notifications.filter(n => !n.isRead).length;
-      setUnreadCount(unread);
-    };
-
-    loadUnreadCount();
-    
     // Poll for new notifications every 30 seconds
-    const interval = setInterval(loadUnreadCount, 30000);
-    
+    const interval = setInterval(refreshNotifications, 30000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, []);
 
   return (
     <button
