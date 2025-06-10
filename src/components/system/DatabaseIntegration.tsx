@@ -6,8 +6,8 @@ import {
 import { getSupabaseService, initializeSupabase } from '../../services/supabaseService';
 
 export const DatabaseIntegration: React.FC = () => {
-  const [supabaseUrl, setSupabaseUrl] = useState('');
-  const [supabaseKey, setSupabaseKey] = useState('');
+  const [supabaseUrl, setSupabaseUrl] = useState('https://ovqthbcvzpruyyfwegwc.supabase.co');
+  const [supabaseKey, setSupabaseKey] = useState('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92cXRoYmN2enBydXl5ZndlZ3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1MzYyNTcsImV4cCI6MjA2NTExMjI1N30.wwMuU_g6xuz7cTDcHBdIUhpgDOHQ1FWN_6j0qi5rUEs');
   const [isConnected, setIsConnected] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   const [loading, setLoading] = useState(false);

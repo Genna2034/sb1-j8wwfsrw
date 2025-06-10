@@ -18,7 +18,7 @@ export type Tables = {
 };
 
 class SupabaseService {
-  private supabase: SupabaseClient;
+  supabase: SupabaseClient;
   private isInitialized: boolean = false;
 
   constructor(supabaseUrl: string, supabaseKey: string) {
