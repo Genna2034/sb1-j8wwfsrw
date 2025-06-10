@@ -3,6 +3,7 @@ import { Clock, Users, Calendar, TrendingUp, CheckCircle, AlertCircle, Play, Squ
 import { useAuth } from '../contexts/AuthContext';
 import { useTimeTracker } from '../hooks/useTimeTracker';
 import { SystemStatus } from './SystemStatus';
+import { SupabaseStatus } from './system/SupabaseStatus';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -218,6 +219,9 @@ export const Dashboard: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* Supabase Status - Solo per admin */}
+      {user?.role === 'admin' && <SupabaseStatus />}
 
       {/* System Status - Solo per admin */}
       {user?.role === 'admin' && <SystemStatus />}

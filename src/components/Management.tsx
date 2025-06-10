@@ -4,9 +4,10 @@ import { User } from '../types/auth';
 import { getUsers, saveUser, deleteUser, generateUserId } from '../utils/userManagement';
 import { sendCredentialsEmail, previewEmail, getEmailLogs } from '../utils/emailService';
 import { ExternalIntegrations } from './system/ExternalIntegrations';
+import { DatabaseIntegration } from './system/DatabaseIntegration';
 
 export const Management: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'integrations' | 'system'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'integrations' | 'database' | 'system'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [showAddUser, setShowAddUser] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -176,8 +177,9 @@ export const Management: React.FC = () => {
 
   const tabs = [
     { id: 'users', label: 'Gestione Utenti', icon: Users },
+    { id: 'database', label: 'Database', icon: Database },
     { id: 'integrations', label: 'Integrazioni', icon: Cloud },
-    { id: 'system', label: 'Sistema', icon: Database }
+    { id: 'system', label: 'Sistema', icon: Settings }
   ];
 
   return (
@@ -443,6 +445,9 @@ export const Management: React.FC = () => {
             </div>
           )}
 
+          {/* Database Tab */}
+          {activeTab === 'database' && <DatabaseIntegration />}
+
           {/* Integrations Tab */}
           {activeTab === 'integrations' && <ExternalIntegrations />}
 
@@ -450,7 +455,7 @@ export const Management: React.FC = () => {
           {activeTab === 'system' && (
             <div className="space-y-6">
               <div className="text-center py-8 text-gray-500">
-                <Database className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <Settings className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>Configurazioni Sistema</p>
                 <p className="text-sm">Funzionalità avanzate in sviluppo</p>
               </div>
