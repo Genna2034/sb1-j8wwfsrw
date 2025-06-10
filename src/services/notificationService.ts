@@ -426,7 +426,7 @@ export const getNotificationService = (): NotificationService => {
     const defaultConfig: NotificationConfig = {
       enableBrowserNotifications: true,
       enablePushNotifications: false, // Disabilitato di default perché richiede VAPID keys
-      enableServiceWorker: true,
+      enableServiceWorker: false, // Disabilitato per compatibilità con StackBlitz
       notificationSound: true,
       notificationTimeout: 5000, // 5 secondi
       defaultIcon: '/Screenshot 2025-06-09 alle 14.11.10.png'
@@ -442,4 +442,3 @@ export const initializeNotificationService = (config: NotificationConfig): Notif
 };
 
 export { NotificationService, type NotificationConfig };
-
