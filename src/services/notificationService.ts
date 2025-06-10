@@ -1,6 +1,6 @@
 import { getSupabaseService } from './supabaseService';
 import { shouldUseSupabase } from '../utils/supabaseUtils';
-import { Notification } from '../types/communications';
+import { AppNotification } from '../types/communications';
 
 export interface PushSubscription {
   endpoint: string;
@@ -233,7 +233,7 @@ class NotificationService {
     }
   }
 
-  async saveNotification(notification: Notification): Promise<boolean> {
+  async saveNotification(notification: AppNotification): Promise<boolean> {
     try {
       // Salva in Supabase se configurato
       if (shouldUseSupabase()) {
@@ -253,7 +253,7 @@ class NotificationService {
     }
   }
 
-  async getNotifications(userId: string): Promise<Notification[]> {
+  async getNotifications(userId: string): Promise<AppNotification[]> {
     try {
       // Carica da Supabase se configurato
       if (shouldUseSupabase()) {
@@ -341,7 +341,7 @@ class NotificationService {
   }
 
   // Utility methods
-  private getNotificationsFromStorage(): Notification[] {
+  private getNotificationsFromStorage(): AppNotification[] {
     const data = localStorage.getItem('emmanuel_notifications');
     return data ? JSON.parse(data) : [];
   }
@@ -442,4 +442,3 @@ export const initializeNotificationService = (config: NotificationConfig): Notif
 };
 
 export { NotificationService, type NotificationConfig };
-

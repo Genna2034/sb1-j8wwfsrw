@@ -51,7 +51,7 @@ export interface MessageTemplate {
   createdBy: string;
 }
 
-export interface Notification {
+export interface AppNotification {
   id: string;
   type: 'appointment' | 'message' | 'invoice' | 'system' | 'emergency' | 'reminder';
   priority: 'low' | 'normal' | 'high' | 'urgent';

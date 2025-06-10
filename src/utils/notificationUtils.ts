@@ -1,7 +1,7 @@
 import { getNotificationService } from '../services/notificationService';
 import { Appointment } from '../types/appointments';
 import { Invoice } from '../types/billing';
-import { Message, Task, Notification } from '../types/communications';
+import { Message, Task, AppNotification } from '../types/communications';
 import { generateNotificationId } from '../utils/communicationStorage';
 
 // Funzioni di utilità per generare e inviare notifiche
@@ -14,8 +14,8 @@ export const generateUniqueNotificationId = (): string => {
 // Crea e salva una notifica generica
 export const createNotification = async (
   userId: string,
-  type: Notification['type'],
-  priority: Notification['priority'],
+  type: AppNotification['type'],
+  priority: AppNotification['priority'],
   title: string,
   message: string,
   options?: {
@@ -25,10 +25,10 @@ export const createNotification = async (
     actionLabel?: string;
     expiresAt?: string;
   }
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   const notificationService = getNotificationService();
   
-  const notification: Notification = {
+  const notification: AppNotification = {
     id: generateNotificationId(),
     type,
     priority,
@@ -61,10 +61,10 @@ export const createAppointmentNotification = async (
   userId: string,
   appointment: Appointment,
   type: 'reminder' | 'confirmation' | 'cancellation' | 'rescheduled'
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   let title = '';
   let message = '';
-  let priority: Notification['priority'] = 'normal';
+  let priority: AppNotification['priority'] = 'normal';
   
   switch (type) {
     case 'reminder':
@@ -99,7 +99,7 @@ export const createAppointmentNotification = async (
 export const createMessageNotification = async (
   userId: string,
   message: Message
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   const priority = message.priority === 'urgent' ? 'urgent' : 
                   message.priority === 'high' ? 'high' : 'normal';
   
@@ -120,10 +120,10 @@ export const createInvoiceNotification = async (
   userId: string,
   invoice: Invoice,
   type: 'new' | 'reminder' | 'overdue' | 'paid'
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   let title = '';
   let message = '';
-  let priority: Notification['priority'] = 'normal';
+  let priority: AppNotification['priority'] = 'normal';
   
   switch (type) {
     case 'new':
@@ -158,10 +158,10 @@ export const createTaskNotification = async (
   userId: string,
   task: Task,
   type: 'new' | 'reminder' | 'overdue' | 'completed'
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   let title = '';
   let message = '';
-  let priority: Notification['priority'] = 'normal';
+  let priority: AppNotification['priority'] = 'normal';
   
   switch (type) {
     case 'new':
@@ -196,7 +196,7 @@ export const createEmergencyNotification = async (
   title: string,
   message: string,
   actionUrl?: string
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   return createNotification(userId, 'emergency', 'urgent', title, message, {
     actionUrl,
     actionLabel: actionUrl ? 'Visualizza Dettagli' : undefined
@@ -209,11 +209,11 @@ export const createSystemNotification = async (
   title: string,
   message: string,
   options?: {
-    priority?: Notification['priority'];
+    priority?: AppNotification['priority'];
     actionUrl?: string;
     actionLabel?: string;
   }
-): Promise<Notification> => {
+): Promise<AppNotification> => {
   return createNotification(userId, 'system', options?.priority || 'normal', title, message, {
     actionUrl: options?.actionUrl,
     actionLabel: options?.actionLabel
