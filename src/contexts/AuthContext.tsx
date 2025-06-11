@@ -15,6 +15,12 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Helper function to validate UUID format
+const isValidUUID = (uuid: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -49,12 +55,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const token = localStorage.getItem('emmanuel_token');
           
           if (user && token) {
-            console.log('✅ Sessione valida trovata per:', user.name);
-            setAuthState({
-              user,
-              isAuthenticated: true,
-              token
-            });
+            // Validate that user.id is a valid UUID
+            if (!isValidUUID(user.id)) {
+              console.log('❌ User ID non è un UUID valido:', user.id, 'pulizia sessione...');
+              clearUserSession();
+              setAuthState({
+                user: null,
+                isAuthenticated: false,
+                token: null
+              });
+            } else {
+              console.log('✅ Sessione valida trovata per:', user.name);
+              setAuthState({
+                user,
+                isAuthenticated: true,
+                token
+              });
+            }
           } else {
             console.log('❌ Sessione non valida, pulizia...');
             clearUserSession();
@@ -92,6 +109,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (user: User, token: string) => {
     console.log('🚀 AuthContext: Effettuando login per:', user.name);
+    
+    // Validate that user.id is a valid UUID before saving
+    if (!isValidUUID(user.id)) {
+      console.error('❌ Tentativo di login con user ID non UUID:', user.id);
+      throw new Error('Invalid user ID format. Expected UUID.');
+    }
     
     // Salva immediatamente nel localStorage
     saveUserSession(user, token);
