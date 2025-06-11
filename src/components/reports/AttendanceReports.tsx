@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Download, FileText, Filter, Users, Clock, DollarSign, Car, Utensils, FileSpreadsheet, Printer, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Download, FileText, Filter, Users, Clock, DollarSign, Car, Utensils, FileSpreadsheet, Printer, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUsers } from '../../utils/userManagement';
 import { getTimeEntries } from '../../utils/storage';
@@ -181,8 +181,6 @@ export const AttendanceReports: React.FC = () => {
     } else if (department.toLowerCase().includes('scolastica') || 
                department.toLowerCase().includes('educativa')) {
       return 'Assistenza scolastica';
-    } else if (department.toLowerCase().includes('riabilitazione')) {
-      return 'Riabilitazione';
     } else {
       return 'Altro';
     }
@@ -191,13 +189,11 @@ export const AttendanceReports: React.FC = () => {
   const getCategoryColor = (category: string): string => {
     switch (category) {
       case 'Assistenza domiciliare':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
       case 'Assistenza scolastica':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'Riabilitazione':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
     }
   };
 
@@ -378,7 +374,6 @@ export const AttendanceReports: React.FC = () => {
                 <option value="all">Tutte le categorie</option>
                 <option value="Assistenza domiciliare">Assistenza Domiciliare</option>
                 <option value="Assistenza scolastica">Assistenza Scolastica</option>
-                <option value="Riabilitazione">Riabilitazione</option>
               </select>
             )}
             
