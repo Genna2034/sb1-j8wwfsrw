@@ -1,6 +1,3 @@
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
 /**
  * Generates a PDF report for staff attendance
  * @param attendanceData Array of staff attendance data
@@ -15,46 +12,55 @@ export const generateAttendancePdf = async (
     showHourlyRate: boolean;
   }
 ): Promise<void> => {
-  // Create a new PDF document
-  const doc = new jsPDF();
-  
-  // Set document properties
-  doc.setProperties({
-    title: `Report Presenze ${getMonthName(options.month)} ${options.year}`,
-    subject: 'Report Presenze Operatori',
-    author: 'Cooperativa Emmanuel',
-    creator: 'Emmanuel Reporting System'
-  });
-  
-  // Add header
-  addHeader(doc, `Report Presenze - ${getMonthName(options.month)} ${options.year}`);
-  
-  // If it's a single staff report
-  if (attendanceData.length === 1) {
-    generateSingleStaffReport(doc, attendanceData[0], options);
-  } else {
-    // Generate summary table for all staff
-    generateSummaryTable(doc, attendanceData, options);
+  try {
+    // Dynamically import jsPDF and jspdf-autotable
+    const { jsPDF } = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
     
-    // Add page break
-    doc.addPage();
+    // Create a new PDF document
+    const doc = new jsPDF();
     
-    // Generate individual reports for each staff member
-    attendanceData.forEach((staffData, index) => {
-      if (index > 0) {
-        doc.addPage();
-      }
-      
-      generateSingleStaffReport(doc, staffData, options);
+    // Set document properties
+    doc.setProperties({
+      title: `Report Presenze ${getMonthName(options.month)} ${options.year}`,
+      subject: 'Report Presenze Operatori',
+      author: 'Cooperativa Emmanuel',
+      creator: 'Emmanuel Reporting System'
     });
+    
+    // Add header
+    addHeader(doc, `Report Presenze - ${getMonthName(options.month)} ${options.year}`);
+    
+    // If it's a single staff report
+    if (attendanceData.length === 1) {
+      generateSingleStaffReport(doc, attendanceData[0], options, autoTable);
+    } else {
+      // Generate summary table for all staff
+      generateSummaryTable(doc, attendanceData, options, autoTable);
+      
+      // Add page break
+      doc.addPage();
+      
+      // Generate individual reports for each staff member
+      attendanceData.forEach((staffData, index) => {
+        if (index > 0) {
+          doc.addPage();
+        }
+        
+        generateSingleStaffReport(doc, staffData, options, autoTable);
+      });
+    }
+    
+    // Save the PDF
+    const filename = attendanceData.length === 1
+      ? `Presenze_${attendanceData[0].staffName.replace(/\s+/g, '_')}_${getMonthName(options.month)}_${options.year}.pdf`
+      : `Report_Presenze_${getMonthName(options.month)}_${options.year}.pdf`;
+    
+    doc.save(filename);
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    throw error;
   }
-  
-  // Save the PDF
-  const filename = attendanceData.length === 1
-    ? `Presenze_${attendanceData[0].staffName.replace(/\s+/g, '_')}_${getMonthName(options.month)}_${options.year}.pdf`
-    : `Report_Presenze_${getMonthName(options.month)}_${options.year}.pdf`;
-  
-  doc.save(filename);
 };
 
 /**
@@ -201,8 +207,9 @@ const addHeader = (doc: any, title: string) => {
  * @param doc PDF document
  * @param attendanceData Array of staff attendance data
  * @param options Options for the report
+ * @param autoTable Function to create tables
  */
-const generateSummaryTable = (doc: any, attendanceData: any[], options: any) => {
+const generateSummaryTable = (doc: any, attendanceData: any[], options: any, autoTable: any) => {
   // Add title
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
@@ -284,8 +291,9 @@ const generateSummaryTable = (doc: any, attendanceData: any[], options: any) => 
  * @param doc PDF document
  * @param staffData Staff attendance data
  * @param options Options for the report
+ * @param autoTable Function to create tables
  */
-const generateSingleStaffReport = (doc: any, staffData: any, options: any) => {
+const generateSingleStaffReport = (doc: any, staffData: any, options: any, autoTable: any) => {
   // Add staff info
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
