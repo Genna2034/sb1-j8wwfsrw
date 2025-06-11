@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   User, Phone, Mail, MapPin, Calendar, AlertTriangle, 
   Pill, Activity, FileText, Clock, Plus, Edit, Save, X,
-  Heart, Thermometer, Droplets, Weight
+  Heart, Thermometer, Droplets, Scale
 } from 'lucide-react';
 import { Patient, MedicalRecord, VitalSigns } from '../../types/medical';
 import { getMedicalRecords, saveMedicalRecord, generateRecordId } from '../../utils/medicalStorage';
@@ -390,7 +390,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, onEdit })
                     {latestVitals.weight && (
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <div className="flex items-center space-x-3">
-                          <Weight className="w-8 h-8 text-blue-600" />
+                          <Scale className="w-8 h-8 text-blue-600" />
                           <div>
                             <p className="text-sm font-medium text-blue-900">Peso</p>
                             <p className="text-lg font-bold text-blue-800">{latestVitals.weight}</p>
