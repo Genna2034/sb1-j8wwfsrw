@@ -35,7 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'timetracker', label: 'Presenze', icon: Clock },
           { id: 'staff', label: 'Team', icon: Users },
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
-          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
+          { id: 'assignments', label: 'Assegna Utenti', icon: UserPlus },
           { id: 'billing', label: 'Fatturazione', icon: Euro },
           { id: 'communications', label: 'Comunicazioni', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
@@ -48,7 +48,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'timetracker', label: 'Presenze', icon: Clock },
           { id: 'staff', label: 'Equipe', icon: Users },
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
-          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
+          { id: 'assignments', label: 'Assegna Utenti', icon: UserPlus },
           { id: 'billing', label: 'Fatturazione', icon: Euro },
           { id: 'communications', label: 'Comunicazioni', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
@@ -59,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           ...baseTabs,
           { id: 'timetracker', label: 'Timbratura', icon: Clock },
           { id: 'medical', label: 'Pazienti', icon: Heart },
-          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
+          { id: 'assignments', label: 'Mie Assegnazioni', icon: UserPlus },
           { id: 'communications', label: 'Messaggi', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen }
         ];

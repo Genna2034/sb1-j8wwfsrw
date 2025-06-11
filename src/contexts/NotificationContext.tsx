@@ -48,7 +48,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     try {
       const userNotifications = await notificationService.getNotifications(user.id);
       setNotifications(userNotifications);
-      setUnreadCount(userNotifications.filter(n => !n.isRead).length);
+      setUnreadCount(userNotifications.filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Errore nel caricamento notifiche:', error);
     }
@@ -84,7 +84,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     const success = await notificationService.markAsRead(notificationId);
     if (success) {
       setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, isRead: true, readAt: new Date().toISOString() } : n)
+        prev.map(n => n.id === notificationId ? { ...n, is_read: true, read_at: new Date().toISOString() } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     }
@@ -97,7 +97,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     const success = await notificationService.markAllAsRead(user.id);
     if (success) {
       setNotifications(prev => 
-        prev.map(n => ({ ...n, isRead: true, readAt: new Date().toISOString() }))
+        prev.map(n => ({ ...n, is_read: true, read_at: new Date().toISOString() }))
       );
       setUnreadCount(0);
     }

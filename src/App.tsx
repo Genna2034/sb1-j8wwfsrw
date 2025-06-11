@@ -9,7 +9,7 @@ import { Calendar } from './components/Calendar';
 import { Reports } from './components/Reports';
 import { Management } from './components/Management';
 import { MedicalRecords } from './components/MedicalRecords';
-import { AppointmentSystem } from './components/AppointmentSystem';
+import { StaffAssignment } from './components/StaffAssignment';
 import { BillingSystem } from './components/BillingSystem';
 import { CommunicationSystem } from './components/CommunicationSystem';
 
@@ -49,8 +49,8 @@ function App() {
         return <StaffList />;
       case 'medical':
         return <MedicalRecords />;
-      case 'appointments':
-        return <AppointmentSystem />;
+      case 'assignments':
+        return <StaffAssignment />;
       case 'billing':
         return <BillingSystem />;
       case 'communications':
