@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Download, Send, Edit, Trash2, CheckCircle, XCircle, DollarSign, Calendar, User, Clock, Shield, Bell } from 'lucide-react';
 import { Invoice } from '../../types/billing';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { createInvoiceNotification } from '../../utils/notificationUtils';
 import { saveInvoice, savePayment, generatePaymentId } from '../../utils/billingStorage';
+import { generateInvoicePdf } from '../../utils/pdfGenerator';
 
 interface InvoiceDetailProps {
   invoice: Invoice;
@@ -23,6 +24,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
 }) => {
   const { user } = useAuth();
   const { showNotification } = useNotifications();
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -138,9 +140,41 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
     }
   };
   
-  const handleDownloadPdf = () => {
-    alert('Funzionalità di download PDF in fase di implementazione');
-    // In una implementazione reale, qui si genererebbe il PDF
+  const handleDownloadPdf = async () => {
+    try {
+      setIsGeneratingPdf(true);
+      
+      // Importa dinamicamente jspdf e jspdf-autotable
+      await import('jspdf');
+      await import('jspdf-autotable');
+      
+      // Genera il PDF
+      const pdfBlob = await generateInvoicePdf(invoice);
+      
+      // Crea un URL per il blob e avvia il download
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Fattura_${invoice.number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Pulisci
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      showNotification(
+        'PDF Generato',
+        `Il PDF della fattura ${invoice.number} è stato scaricato`
+      );
+    } catch (error) {
+      console.error('Errore nella generazione del PDF:', error);
+      alert('Errore nella generazione del PDF. Controlla la console per i dettagli.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   return (
@@ -336,10 +370,20 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
             <button
               onClick={handleDownloadPdf}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={isGeneratingPdf}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <Download className="w-4 h-4 mr-2" />
-              Scarica PDF
+              {isGeneratingPdf ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Generazione...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Scarica PDF
+                </>
+              )}
             </button>
             
             {invoice.status === 'draft' && (

@@ -3,6 +3,7 @@ import { FileText, Plus, Search, Filter, Eye, Edit, Trash2, Download, Send, Euro
 import { Invoice } from '../../types/billing';
 import { getInvoices, deleteInvoice } from '../../utils/billingStorage';
 import { useAuth } from '../../contexts/AuthContext';
+import { generateInvoicePdf } from '../../utils/pdfGenerator';
 
 interface InvoiceListProps {
   onSelectInvoice: (invoice: Invoice) => void;
@@ -22,6 +23,7 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
 
   useEffect(() => {
     loadInvoices();
@@ -77,9 +79,36 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
     }
   };
   
-  const handleDownloadPdf = (invoice: Invoice) => {
-    alert(`Funzionalità di download PDF per la fattura ${invoice.number} in fase di implementazione`);
-    // In una implementazione reale, qui si genererebbe il PDF
+  const handleDownloadPdf = async (invoice: Invoice) => {
+    try {
+      setGeneratingPdf(invoice.id);
+      
+      // Importa dinamicamente jspdf e jspdf-autotable
+      await import('jspdf');
+      await import('jspdf-autotable');
+      
+      // Genera il PDF
+      const pdfBlob = await generateInvoicePdf(invoice);
+      
+      // Crea un URL per il blob e avvia il download
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Fattura_${invoice.number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Pulisci
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error('Errore nella generazione del PDF:', error);
+      alert('Errore nella generazione del PDF. Controlla la console per i dettagli.');
+    } finally {
+      setGeneratingPdf(null);
+    }
   };
   
   const handleSendInvoice = (invoice: Invoice) => {
@@ -300,10 +329,15 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
                     
                     <button
                       onClick={() => handleDownloadPdf(invoice)}
-                      className="text-purple-600 hover:text-purple-900"
+                      disabled={generatingPdf === invoice.id}
+                      className="text-purple-600 hover:text-purple-900 disabled:opacity-50"
                       title="Scarica PDF"
                     >
-                      <Download className="w-4 h-4" />
+                      {generatingPdf === invoice.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
                     </button>
                     
                     {invoice.status === 'draft' && (
