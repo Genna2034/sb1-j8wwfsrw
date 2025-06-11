@@ -443,3 +443,5 @@ export const initializeNotificationService = (config: NotificationConfig): Notif
 
 // Export the class and type
 export { NotificationService, type NotificationConfig };
+
+export { NotificationService }
