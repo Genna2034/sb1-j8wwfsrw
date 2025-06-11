@@ -4,7 +4,7 @@ const STORAGE_KEY = 'emmanuel_users';
 
 const DEFAULT_USERS: User[] = [
   {
-    id: '1',
+    id: crypto.randomUUID(),
     username: 'admin.emmanuel',
     name: 'Mario Rossi',
     role: 'admin',
@@ -13,7 +13,7 @@ const DEFAULT_USERS: User[] = [
     password: 'Emmanuel2024!'
   },
   {
-    id: '2',
+    id: crypto.randomUUID(),
     username: 'gennaro.borriello',
     name: 'Gennaro Borriello',
     role: 'coordinator',
@@ -22,7 +22,7 @@ const DEFAULT_USERS: User[] = [
     password: 'Coord2024!'
   },
   {
-    id: '3',
+    id: crypto.randomUUID(),
     username: 'infermiere.01',
     name: 'Anna Verdi',
     role: 'staff',
@@ -90,7 +90,7 @@ export const deleteUser = (userId: string): void => {
 };
 
 export const generateUserId = (): string => {
-  return `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return crypto.randomUUID();
 };
 
 export const getUserByCredentials = (username: string, password: string): User | null => {

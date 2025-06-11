@@ -369,15 +369,15 @@ export const saveFamilyAccess = (familyAccess: FamilyAccess): void => {
 
 // UTILITY FUNCTIONS
 export const generateMessageId = (): string => {
-  return `MSG-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateNotificationId = (): string => {
-  return `NOT-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateTaskId = (): string => {
-  return `TSK-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 const replaceVariables = (text: string, variables: Record<string, string>): string => {
@@ -404,7 +404,7 @@ const generateMockMessages = (): Message[] => {
     const patient = patients[i % patients.length];
     
     messages.push({
-      id: `MSG-${i + 1}`,
+      id: crypto.randomUUID(),
       type: types[i % types.length],
       priority: priorities[i % priorities.length],
       status: statuses[i % statuses.length],
@@ -441,7 +441,7 @@ const generateMockNotifications = (): Notification[] => {
     const user = users[i % users.length];
     
     notifications.push({
-      id: `NOT-${i + 1}`,
+      id: crypto.randomUUID(),
       type: types[i % types.length],
       priority: priorities[i % priorities.length],
       title: `Notifica ${i + 1}`,
@@ -473,7 +473,7 @@ const generateMockTasks = (): Task[] => {
     dueDate.setDate(dueDate.getDate() + (i - 5));
     
     tasks.push({
-      id: `TSK-${i + 1}`,
+      id: crypto.randomUUID(),
       title: `Task ${i + 1}`,
       description: `Descrizione del task ${i + 1}`,
       type: types[i % types.length],
@@ -499,7 +499,7 @@ const generateMockTasks = (): Task[] => {
 const generateDefaultTemplates = (): MessageTemplate[] => {
   return [
     {
-      id: 'TPL-001',
+      id: crypto.randomUUID(),
       name: 'Promemoria Appuntamento',
       type: 'appointment_reminder',
       subject: 'Promemoria: Appuntamento con {{patientName}}',
@@ -511,7 +511,7 @@ const generateDefaultTemplates = (): MessageTemplate[] => {
       createdBy: 'system'
     },
     {
-      id: 'TPL-002',
+      id: crypto.randomUUID(),
       name: 'Conferma Appuntamento',
       type: 'appointment_confirmation',
       subject: 'Conferma Appuntamento - {{patientName}}',
@@ -523,7 +523,7 @@ const generateDefaultTemplates = (): MessageTemplate[] => {
       createdBy: 'system'
     },
     {
-      id: 'TPL-003',
+      id: crypto.randomUUID(),
       name: 'Promemoria Pagamento',
       type: 'invoice_reminder',
       subject: 'Promemoria Pagamento - Fattura {{invoiceNumber}}',
