@@ -49,6 +49,10 @@ export function useNotificationScheduler() {
       
       let notificationCount = 0;
       
+      // Initialize invoice arrays outside the role check
+      let dueInvoices: any[] = [];
+      let overdueInvoices: any[] = [];
+      
       // Promemoria appuntamenti per domani
       const appointments = getAppointments({ date: tomorrowStr });
       const staffAppointments = appointments.filter(apt => 
@@ -64,7 +68,7 @@ export function useNotificationScheduler() {
       // Promemoria fatture in scadenza
       if (user.role === 'admin' || user.role === 'coordinator') {
         const invoices = getInvoices();
-        const dueInvoices = invoices.filter(inv => {
+        dueInvoices = invoices.filter(inv => {
           const dueDate = new Date(inv.dueDate);
           const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
           return diffDays <= 5 && diffDays > 0 && inv.status !== 'paid' && inv.status !== 'cancelled';
@@ -76,7 +80,7 @@ export function useNotificationScheduler() {
         }
         
         // Fatture scadute oggi
-        const overdueInvoices = invoices.filter(inv => 
+        overdueInvoices = invoices.filter(inv => 
           inv.dueDate === todayStr && 
           inv.status !== 'paid' && 
           inv.status !== 'cancelled'
