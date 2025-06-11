@@ -49,9 +49,9 @@ export function useNotificationScheduler() {
       
       let notificationCount = 0;
       
-      // Initialize invoice arrays outside the role check
-      let dueInvoices: any[] = [];
-      let overdueInvoices: any[] = [];
+      // Initialize arrays for invoice tracking
+      let dueInvoicesArray: any[] = [];
+      let overdueInvoicesArray: any[] = [];
       
       // Promemoria appuntamenti per domani
       const appointments = getAppointments({ date: tomorrowStr });
@@ -68,25 +68,25 @@ export function useNotificationScheduler() {
       // Promemoria fatture in scadenza
       if (user.role === 'admin' || user.role === 'coordinator') {
         const invoices = getInvoices();
-        dueInvoices = invoices.filter(inv => {
+        dueInvoicesArray = invoices.filter(inv => {
           const dueDate = new Date(inv.dueDate);
           const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
           return diffDays <= 5 && diffDays > 0 && inv.status !== 'paid' && inv.status !== 'cancelled';
         });
         
-        for (const invoice of dueInvoices) {
+        for (const invoice of dueInvoicesArray) {
           await createInvoiceNotification(user.id, invoice, 'reminder');
           notificationCount++;
         }
         
         // Fatture scadute oggi
-        overdueInvoices = invoices.filter(inv => 
+        overdueInvoicesArray = invoices.filter(inv => 
           inv.dueDate === todayStr && 
           inv.status !== 'paid' && 
           inv.status !== 'cancelled'
         );
         
-        for (const invoice of overdueInvoices) {
+        for (const invoice of overdueInvoicesArray) {
           await createInvoiceNotification(user.id, invoice, 'overdue');
           notificationCount++;
         }
@@ -121,7 +121,7 @@ export function useNotificationScheduler() {
       setStats({
         appointmentReminders: staffAppointments.length,
         invoiceReminders: (user.role === 'admin' || user.role === 'coordinator') ? 
-          dueInvoices.length + overdueInvoices.length : 0,
+          dueInvoicesArray.length + overdueInvoicesArray.length : 0,
         taskReminders: dueTasks.length + overdueTasks.length,
         total: notificationCount
       });

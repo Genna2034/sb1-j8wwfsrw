@@ -33,11 +33,12 @@ export const SupabaseStatus: React.FC = () => {
       
       if (configured) {
         try {
-          // Test connessione con sintassi corretta per il count
+          // Test connessione con una query semplice invece di count
           const supabase = getSupabaseService();
-          const { count, error } = await supabase.supabase
+          const { data, error } = await supabase.supabase
             .from('users')
-            .select('*', { count: 'exact', head: true });
+            .select('id')
+            .limit(1);
           
           if (error) {
             throw error;
@@ -66,24 +67,24 @@ export const SupabaseStatus: React.FC = () => {
     try {
       const supabase = getSupabaseService();
       
-      // Usa la sintassi corretta per ottenere i count
+      // Usa query separate per ottenere i conteggi
       const [
-        { count: patientsCount },
-        { count: appointmentsCount },
-        { count: invoicesCount },
-        { count: usersCount }
+        patientsResult,
+        appointmentsResult,
+        invoicesResult,
+        usersResult
       ] = await Promise.all([
-        supabase.supabase.from('patients').select('*', { count: 'exact', head: true }),
-        supabase.supabase.from('appointments').select('*', { count: 'exact', head: true }),
-        supabase.supabase.from('invoices').select('*', { count: 'exact', head: true }),
-        supabase.supabase.from('users').select('*', { count: 'exact', head: true })
+        supabase.supabase.from('patients').select('id').limit(1000),
+        supabase.supabase.from('appointments').select('id').limit(1000),
+        supabase.supabase.from('invoices').select('id').limit(1000),
+        supabase.supabase.from('users').select('id').limit(1000)
       ]);
       
       return {
-        patients: patientsCount || 0,
-        appointments: appointmentsCount || 0,
-        invoices: invoicesCount || 0,
-        users: usersCount || 0
+        patients: patientsResult.data?.length || 0,
+        appointments: appointmentsResult.data?.length || 0,
+        invoices: invoicesResult.data?.length || 0,
+        users: usersResult.data?.length || 0
       };
     } catch (error) {
       console.error('Errore caricamento statistiche:', error);
