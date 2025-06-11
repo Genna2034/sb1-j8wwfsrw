@@ -33,8 +33,10 @@ export const SupabaseProvider: React.FC<SupabaseProviderProps> = ({ children }) 
           setSupabase(service.supabase);
           setIsInitialized(true);
           
-          // Test connection
-          const { data, error } = await service.supabase.from('users').select('count()', { count: 'exact' });
+          // Test connection with correct count syntax
+          const { count, error } = await service.supabase
+            .from('users')
+            .select('*', { count: 'exact', head: true });
           
           if (error) {
             throw error;

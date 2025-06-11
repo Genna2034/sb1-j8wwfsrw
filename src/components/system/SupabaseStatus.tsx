@@ -33,9 +33,15 @@ export const SupabaseStatus: React.FC = () => {
       
       if (configured) {
         try {
-          // Test connessione
+          // Test connessione con sintassi corretta per il count
           const supabase = getSupabaseService();
-          const { data: usersData } = await supabase.supabase.from('users').select('count()', { count: 'exact' });
+          const { count, error } = await supabase.supabase
+            .from('users')
+            .select('*', { count: 'exact', head: true });
+          
+          if (error) {
+            throw error;
+          }
           
           setIsConnected(true);
           
@@ -60,23 +66,24 @@ export const SupabaseStatus: React.FC = () => {
     try {
       const supabase = getSupabaseService();
       
+      // Usa la sintassi corretta per ottenere i count
       const [
         { count: patientsCount },
         { count: appointmentsCount },
         { count: invoicesCount },
         { count: usersCount }
       ] = await Promise.all([
-        supabase.supabase.from('patients').select('count', { count: 'exact' }).single(),
-        supabase.supabase.from('appointments').select('count', { count: 'exact' }).single(),
-        supabase.supabase.from('invoices').select('count', { count: 'exact' }).single(),
-        supabase.supabase.from('users').select('count', { count: 'exact' }).single()
+        supabase.supabase.from('patients').select('*', { count: 'exact', head: true }),
+        supabase.supabase.from('appointments').select('*', { count: 'exact', head: true }),
+        supabase.supabase.from('invoices').select('*', { count: 'exact', head: true }),
+        supabase.supabase.from('users').select('*', { count: 'exact', head: true })
       ]);
       
       return {
-        patients: patientsCount,
-        appointments: appointmentsCount,
-        invoices: invoicesCount,
-        users: usersCount
+        patients: patientsCount || 0,
+        appointments: appointmentsCount || 0,
+        invoices: invoicesCount || 0,
+        users: usersCount || 0
       };
     } catch (error) {
       console.error('Errore caricamento statistiche:', error);
