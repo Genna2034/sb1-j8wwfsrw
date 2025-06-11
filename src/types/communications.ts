@@ -57,15 +57,15 @@ export interface AppNotification {
   priority: 'low' | 'normal' | 'high' | 'urgent';
   title: string;
   message: string;
-  userId: string;
-  isRead: boolean;
-  actionUrl?: string;
-  actionLabel?: string;
-  relatedId?: string;
-  relatedType?: 'appointment' | 'message' | 'invoice' | 'patient';
-  createdAt: string;
-  readAt?: string;
-  expiresAt?: string;
+  user_id: string;
+  is_read: boolean;
+  action_url?: string;
+  action_label?: string;
+  related_id?: string;
+  related_type?: 'appointment' | 'message' | 'invoice' | 'patient';
+  created_at: string;
+  read_at?: string;
+  expires_at?: string;
   metadata?: Record<string, any>;
 }
 

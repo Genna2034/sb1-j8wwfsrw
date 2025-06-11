@@ -19,11 +19,11 @@ export const createNotification = async (
   title: string,
   message: string,
   options?: {
-    relatedId?: string;
-    relatedType?: 'appointment' | 'message' | 'invoice' | 'patient';
-    actionUrl?: string;
-    actionLabel?: string;
-    expiresAt?: string;
+    related_id?: string;
+    related_type?: 'appointment' | 'message' | 'invoice' | 'patient';
+    action_url?: string;
+    action_label?: string;
+    expires_at?: string;
   }
 ): Promise<AppNotification> => {
   const notificationService = getNotificationService();
@@ -34,9 +34,9 @@ export const createNotification = async (
     priority,
     title,
     message,
-    userId,
-    isRead: false,
-    createdAt: new Date().toISOString(),
+    user_id: userId,
+    is_read: false,
+    created_at: new Date().toISOString(),
     ...options
   };
   
@@ -47,7 +47,7 @@ export const createNotification = async (
     body: message,
     tag: notification.id,
     data: {
-      url: options?.actionUrl || '/',
+      url: options?.action_url || '/',
       notificationId: notification.id,
       type
     }
@@ -88,10 +88,10 @@ export const createAppointmentNotification = async (
   }
   
   return createNotification(userId, 'appointment', priority, title, message, {
-    relatedId: appointment.id,
-    relatedType: 'appointment',
-    actionUrl: `/appointments?id=${appointment.id}`,
-    actionLabel: 'Visualizza Appuntamento'
+    related_id: appointment.id,
+    related_type: 'appointment',
+    action_url: `/appointments?id=${appointment.id}`,
+    action_label: 'Visualizza Appuntamento'
   });
 };
 
@@ -107,10 +107,10 @@ export const createMessageNotification = async (
     `Nuovo messaggio da ${message.fromUserName}`, 
     message.subject, 
     {
-      relatedId: message.id,
-      relatedType: 'message',
-      actionUrl: `/communications?tab=messages&id=${message.id}`,
-      actionLabel: 'Leggi Messaggio'
+      related_id: message.id,
+      related_type: 'message',
+      action_url: `/communications?tab=messages&id=${message.id}`,
+      action_label: 'Leggi Messaggio'
     }
   );
 };
@@ -146,10 +146,10 @@ export const createInvoiceNotification = async (
   }
   
   return createNotification(userId, 'invoice', priority, title, message, {
-    relatedId: invoice.id,
-    relatedType: 'invoice',
-    actionUrl: `/billing?tab=invoices&id=${invoice.id}`,
-    actionLabel: 'Visualizza Fattura'
+    related_id: invoice.id,
+    related_type: 'invoice',
+    action_url: `/billing?tab=invoices&id=${invoice.id}`,
+    action_label: 'Visualizza Fattura'
   });
 };
 
@@ -184,9 +184,9 @@ export const createTaskNotification = async (
   }
   
   return createNotification(userId, 'reminder', priority, title, message, {
-    relatedId: task.id,
-    actionUrl: `/communications?tab=tasks&id=${task.id}`,
-    actionLabel: 'Visualizza Task'
+    related_id: task.id,
+    action_url: `/communications?tab=tasks&id=${task.id}`,
+    action_label: 'Visualizza Task'
   });
 };
 
@@ -198,8 +198,8 @@ export const createEmergencyNotification = async (
   actionUrl?: string
 ): Promise<AppNotification> => {
   return createNotification(userId, 'emergency', 'urgent', title, message, {
-    actionUrl,
-    actionLabel: actionUrl ? 'Visualizza Dettagli' : undefined
+    action_url: actionUrl,
+    action_label: actionUrl ? 'Visualizza Dettagli' : undefined
   });
 };
 
@@ -210,12 +210,12 @@ export const createSystemNotification = async (
   message: string,
   options?: {
     priority?: AppNotification['priority'];
-    actionUrl?: string;
-    actionLabel?: string;
+    action_url?: string;
+    action_label?: string;
   }
 ): Promise<AppNotification> => {
   return createNotification(userId, 'system', options?.priority || 'normal', title, message, {
-    actionUrl: options?.actionUrl,
-    actionLabel: options?.actionLabel
+    action_url: options?.action_url,
+    action_label: options?.action_label
   });
 };

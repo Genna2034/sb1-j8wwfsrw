@@ -259,15 +259,15 @@ class NotificationService {
       if (shouldUseSupabase()) {
         const supabase = getSupabaseService();
         return await supabase.getAll('notifications', {
-          filters: { userId },
-          orderBy: 'createdAt',
+          filters: { user_id: userId },
+          orderBy: 'created_at',
           ascending: false
         });
       }
 
       // Carica da localStorage
       const notifications = this.getNotificationsFromStorage();
-      return notifications.filter(n => n.userId === userId);
+      return notifications.filter(n => n.user_id === userId);
     } catch (error) {
       console.error('Errore nel caricamento notifiche:', error);
       return [];
@@ -280,8 +280,8 @@ class NotificationService {
       if (shouldUseSupabase()) {
         const supabase = getSupabaseService();
         await supabase.update('notifications', notificationId, {
-          isRead: true,
-          readAt: new Date().toISOString()
+          is_read: true,
+          read_at: new Date().toISOString()
         });
       }
 
@@ -289,8 +289,8 @@ class NotificationService {
       const notifications = this.getNotificationsFromStorage();
       const notification = notifications.find(n => n.id === notificationId);
       if (notification) {
-        notification.isRead = true;
-        notification.readAt = new Date().toISOString();
+        notification.is_read = true;
+        notification.read_at = new Date().toISOString();
         localStorage.setItem('emmanuel_notifications', JSON.stringify(notifications));
       }
 
@@ -309,15 +309,15 @@ class NotificationService {
         const { data: notifications } = await supabase.supabase
           .from('notifications')
           .select('id')
-          .eq('userId', userId)
-          .eq('isRead', false);
+          .eq('user_id', userId)
+          .eq('is_read', false);
 
         if (notifications && notifications.length > 0) {
           await supabase.supabase
             .from('notifications')
             .update({
-              isRead: true,
-              readAt: new Date().toISOString()
+              is_read: true,
+              read_at: new Date().toISOString()
             })
             .in('id', notifications.map(n => n.id));
         }
@@ -326,9 +326,9 @@ class NotificationService {
       // Aggiorna in localStorage
       const notifications = this.getNotificationsFromStorage();
       notifications.forEach(n => {
-        if (n.userId === userId && !n.isRead) {
-          n.isRead = true;
-          n.readAt = new Date().toISOString();
+        if (n.user_id === userId && !n.is_read) {
+          n.is_read = true;
+          n.read_at = new Date().toISOString();
         }
       });
       localStorage.setItem('emmanuel_notifications', JSON.stringify(notifications));
