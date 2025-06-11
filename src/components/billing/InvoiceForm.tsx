@@ -159,11 +159,13 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
       const selectedPatient = patients.find(p => p.id === formData.patientId);
       if (!selectedPatient) {
         alert('Seleziona un paziente');
+        setLoading(false);
         return;
       }
 
       if (formData.items.length === 0) {
         alert('Aggiungi almeno un elemento alla fattura');
+        setLoading(false);
         return;
       }
 

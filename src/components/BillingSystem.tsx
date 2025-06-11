@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Euro, TrendingUp, CreditCard, Plus, Calculator, PieChart, BarChart3 } from 'lucide-react';
 import { Invoice } from '../types/billing';
-import { getInvoices, saveInvoice, deleteInvoice, generateFinancialSummary } from '../utils/billingStorage';
+import { getInvoices, saveInvoice, deleteInvoice, generateFinancialSummary, savePayment, generatePaymentId } from '../utils/billingStorage';
 import { InvoiceList } from './billing/InvoiceList';
 import { InvoiceForm } from './billing/InvoiceForm';
+import { InvoiceDetail } from './billing/InvoiceDetail';
 import { FinancialDashboard } from './billing/FinancialDashboard';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationContext';
 
 export const BillingSystem: React.FC = () => {
   const { user } = useAuth();
+  const { showNotification } = useNotifications();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'invoices' | 'payments' | 'expenses' | 'reports'>('dashboard');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [showInvoiceDetail, setShowInvoiceDetail] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [stats, setStats] = useState<any>({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -38,7 +43,7 @@ export const BillingSystem: React.FC = () => {
 
   const handleSelectInvoice = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
-    // Could open invoice detail modal here
+    setShowInvoiceDetail(true);
   };
 
   const handleCreateInvoice = () => {
@@ -52,10 +57,91 @@ export const BillingSystem: React.FC = () => {
   };
 
   const handleSaveInvoice = (invoice: Invoice) => {
-    saveInvoice(invoice);
-    loadStats();
-    setShowInvoiceForm(false);
-    setEditingInvoice(null);
+    setLoading(true);
+    try {
+      saveInvoice(invoice);
+      loadStats();
+      setShowInvoiceForm(false);
+      setEditingInvoice(null);
+      
+      // Se è una nuova fattura, mostra notifica
+      if (!editingInvoice) {
+        showNotification(
+          'Fattura creata',
+          `La fattura ${invoice.number} è stata creata con successo`
+        );
+      }
+    } catch (error) {
+      console.error('Errore nel salvataggio fattura:', error);
+      alert('Errore nel salvataggio della fattura');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteInvoice = () => {
+    if (selectedInvoice) {
+      setLoading(true);
+      try {
+        deleteInvoice(selectedInvoice.id);
+        loadStats();
+        setShowInvoiceDetail(false);
+        setSelectedInvoice(null);
+        
+        showNotification(
+          'Fattura eliminata',
+          `La fattura ${selectedInvoice.number} è stata eliminata`
+        );
+      } catch (error) {
+        console.error('Errore nell\'eliminazione fattura:', error);
+        alert('Errore nell\'eliminazione della fattura');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  
+  const handleStatusChange = (status: Invoice['status']) => {
+    if (selectedInvoice) {
+      setLoading(true);
+      try {
+        const updatedInvoice = { ...selectedInvoice, status, updatedAt: new Date().toISOString() };
+        
+        // Se lo stato è "paid", aggiorna anche gli importi
+        if (status === 'paid' && selectedInvoice.remainingAmount > 0) {
+          // Registra un pagamento
+          const payment = {
+            id: generatePaymentId(),
+            invoiceId: selectedInvoice.id,
+            amount: selectedInvoice.remainingAmount,
+            method: 'bank_transfer',
+            date: new Date().toISOString().split('T')[0],
+            reference: `Pagamento fattura ${selectedInvoice.number}`,
+            createdAt: new Date().toISOString(),
+            createdBy: user?.id || ''
+          };
+          
+          savePayment(payment);
+          
+          // La savePayment aggiorna automaticamente lo stato della fattura
+        } else {
+          saveInvoice(updatedInvoice);
+        }
+        
+        loadStats();
+        setSelectedInvoice(updatedInvoice);
+        
+        showNotification(
+          `Fattura ${getStatusText(status)}`,
+          `La fattura ${selectedInvoice.number} è stata ${getStatusText(status).toLowerCase()}`
+        );
+      } catch (error) {
+        console.error('Errore nel cambio stato fattura:', error);
+        alert('Errore nel cambio stato della fattura');
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -63,6 +149,17 @@ export const BillingSystem: React.FC = () => {
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
+  };
+  
+  const getStatusText = (status: string): string => {
+    switch (status) {
+      case 'draft': return 'Bozza';
+      case 'sent': return 'Inviata';
+      case 'paid': return 'Pagata';
+      case 'overdue': return 'Scaduta';
+      case 'cancelled': return 'Annullata';
+      default: return status;
+    }
   };
 
   const tabs = [
@@ -86,9 +183,19 @@ export const BillingSystem: React.FC = () => {
         <button
           onClick={handleCreateInvoice}
           className="flex items-center px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+          disabled={loading}
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Nuova Fattura
+          {loading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <span>Caricamento...</span>
+            </div>
+          ) : (
+            <>
+              <Plus className="w-4 h-4 mr-2" />
+              Nuova Fattura
+            </>
+          )}
         </button>
       </div>
 
@@ -228,6 +335,23 @@ export const BillingSystem: React.FC = () => {
             setShowInvoiceForm(false);
             setEditingInvoice(null);
           }}
+        />
+      )}
+      
+      {showInvoiceDetail && selectedInvoice && (
+        <InvoiceDetail
+          invoice={selectedInvoice}
+          onEdit={() => {
+            setEditingInvoice(selectedInvoice);
+            setShowInvoiceDetail(false);
+            setShowInvoiceForm(true);
+          }}
+          onDelete={handleDeleteInvoice}
+          onClose={() => {
+            setShowInvoiceDetail(false);
+            setSelectedInvoice(null);
+          }}
+          onStatusChange={handleStatusChange}
         />
       )}
     </div>

@@ -3,7 +3,7 @@ import { User } from '../types/auth';
 import { Patient } from '../types/medical';
 import { Appointment } from '../types/appointments';
 import { Invoice } from '../types/billing';
-import { Message, Task } from '../types/communications';
+import { Message, Task, AppNotification } from '../types/communications';
 
 // Tipi per le tabelle Supabase
 export type Tables = {
@@ -15,6 +15,8 @@ export type Tables = {
   time_entries: any;
   messages: Message;
   tasks: Task;
+  notifications: AppNotification;
+  push_subscriptions: any;
 };
 
 class SupabaseService {
@@ -170,7 +172,7 @@ class SupabaseService {
 
   // Metodi specifici per entità
   async getPatients(filters?: Record<string, any>) {
-    return this.getAll('patients', { filters, orderBy: 'updatedAt', ascending: false });
+    return this.getAll('patients', { filters, orderBy: 'updated_at', ascending: false });
   }
 
   async getAppointments(filters?: Record<string, any>) {
@@ -178,15 +180,19 @@ class SupabaseService {
   }
 
   async getInvoices(filters?: Record<string, any>) {
-    return this.getAll('invoices', { filters, orderBy: 'issueDate', ascending: false });
+    return this.getAll('invoices', { filters, orderBy: 'issue_date', ascending: false });
   }
 
   async getMessages(filters?: Record<string, any>) {
-    return this.getAll('messages', { filters, orderBy: 'createdAt', ascending: false });
+    return this.getAll('messages', { filters, orderBy: 'created_at', ascending: false });
   }
 
   async getTasks(filters?: Record<string, any>) {
-    return this.getAll('tasks', { filters, orderBy: 'dueDate' });
+    return this.getAll('tasks', { filters, orderBy: 'due_date' });
+  }
+  
+  async getNotifications(filters?: Record<string, any>) {
+    return this.getAll('notifications', { filters, orderBy: 'created_at', ascending: false });
   }
 
   // Metodi per migrare dati da localStorage a Supabase
@@ -236,6 +242,19 @@ class SupabaseService {
         console.log(`Migrazione ${medicalRecords.length} cartelle cliniche...`);
         for (const record of medicalRecords) {
           await this.insert('medical_records', record);
+        }
+      }
+      
+      // Migra notifiche
+      const notifications = JSON.parse(localStorage.getItem('emmanuel_notifications') || '[]');
+      if (notifications.length > 0) {
+        console.log(`Migrazione ${notifications.length} notifiche...`);
+        for (const notification of notifications) {
+          try {
+            await this.insert('notifications', notification);
+          } catch (error) {
+            console.error('Errore migrazione notifica:', error);
+          }
         }
       }
       

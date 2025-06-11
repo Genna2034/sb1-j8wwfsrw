@@ -76,6 +76,32 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
       loadInvoices();
     }
   };
+  
+  const handleDownloadPdf = (invoice: Invoice) => {
+    alert(`Funzionalità di download PDF per la fattura ${invoice.number} in fase di implementazione`);
+    // In una implementazione reale, qui si genererebbe il PDF
+  };
+  
+  const handleSendInvoice = (invoice: Invoice) => {
+    if (invoice.status !== 'draft') {
+      alert('Solo le fatture in bozza possono essere inviate');
+      return;
+    }
+    
+    if (window.confirm(`Sei sicuro di voler inviare la fattura ${invoice.number}?`)) {
+      // Aggiorna lo stato della fattura a "sent"
+      const updatedInvoice = { ...invoice, status: 'sent', updatedAt: new Date().toISOString() };
+      try {
+        const { saveInvoice } = require('../../utils/billingStorage');
+        saveInvoice(updatedInvoice);
+        loadInvoices();
+        alert(`Fattura ${invoice.number} inviata con successo`);
+      } catch (error) {
+        console.error('Errore nell\'invio fattura:', error);
+        alert('Errore nell\'invio della fattura');
+      }
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -273,7 +299,7 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
                     )}
                     
                     <button
-                      onClick={() => {/* Download PDF */}}
+                      onClick={() => handleDownloadPdf(invoice)}
                       className="text-purple-600 hover:text-purple-900"
                       title="Scarica PDF"
                     >
@@ -282,7 +308,7 @@ export const InvoiceList: React.FC<InvoiceListProps> = ({
                     
                     {invoice.status === 'draft' && (
                       <button
-                        onClick={() => {/* Send invoice */}}
+                        onClick={() => handleSendInvoice(invoice)}
                         className="text-orange-600 hover:text-orange-900"
                         title="Invia"
                       >

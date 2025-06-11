@@ -30,6 +30,8 @@ export const FinancialDashboard: React.FC = () => {
       case 'year':
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
         break;
+      default:
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
     }
 
     const financialSummary = generateFinancialSummary(startDate, endDate);
@@ -53,6 +55,7 @@ export const FinancialDashboard: React.FC = () => {
       case 'month': return 'Questo Mese';
       case 'quarter': return 'Questo Trimestre';
       case 'year': return 'Quest\'Anno';
+      default: return 'Questo Mese';
     }
   };
 
@@ -232,7 +235,7 @@ export const FinancialDashboard: React.FC = () => {
       {/* Expense Breakdown */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h4 className="text-lg font-semibold text-gray-900 mb-4">Ripartizione Spese per Categoria</h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(summary.expenses.byCategory).map(([category, amount]) => (
             <div key={category} className="text-center">
               <div className="p-3 bg-gray-100 rounded-lg mb-2">
@@ -242,10 +245,10 @@ export const FinancialDashboard: React.FC = () => {
                 {getCategoryDisplayName(category)}
               </div>
               <div className="text-sm text-gray-600">
-                {formatCurrency(amount)}
+                {formatCurrency(amount as number)}
               </div>
               <div className="text-xs text-gray-500">
-                {formatPercentage((amount / summary.expenses.total) * 100)}
+                {formatPercentage(((amount as number) / summary.expenses.total) * 100)}
               </div>
             </div>
           ))}

@@ -52,6 +52,13 @@ export const saveInvoice = (invoice: Invoice): void => {
   if (existingIndex >= 0) {
     invoices[existingIndex] = { ...invoice, updatedAt: new Date().toISOString() };
   } else {
+    // Aggiorna il numero fattura nelle impostazioni
+    if (invoice.status !== 'draft') {
+      const settings = getBillingSettings();
+      settings.invoiceSettings.nextInvoiceNumber++;
+      saveBillingSettings(settings);
+    }
+    
     invoices.push({ 
       ...invoice, 
       createdAt: new Date().toISOString(),
@@ -112,6 +119,7 @@ const updateInvoicePaidAmount = (invoiceId: string): void => {
     // Update status based on payment
     if (totalPaid >= invoice.total) {
       invoice.status = 'paid';
+      invoice.paymentDate = new Date().toISOString().split('T')[0];
     } else if (totalPaid > 0) {
       invoice.status = 'sent'; // Partially paid
     }
@@ -265,10 +273,6 @@ export const generateInvoiceFromAppointments = (
     createdBy: userId,
     isElectronic: settings.invoiceSettings.enableElectronicInvoicing
   };
-  
-  // Update next invoice number
-  settings.invoiceSettings.nextInvoiceNumber++;
-  saveBillingSettings(settings);
   
   return invoice;
 };

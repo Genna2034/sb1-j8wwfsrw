@@ -1,9 +1,10 @@
 import React from 'react';
-import { FileText, Download, Send, Edit, Trash2, CheckCircle, XCircle, DollarSign, Calendar, User, Clock, Shield } from 'lucide-react';
+import { FileText, Download, Send, Edit, Trash2, CheckCircle, XCircle, DollarSign, Calendar, User, Clock, Shield, Bell } from 'lucide-react';
 import { Invoice } from '../../types/billing';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { createInvoiceNotification } from '../../utils/notificationUtils';
+import { saveInvoice, savePayment, generatePaymentId } from '../../utils/billingStorage';
 
 interface InvoiceDetailProps {
   invoice: Invoice;
@@ -77,6 +78,32 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           `La fattura ${invoice.number} è stata inviata a ${invoice.patientName}`
         );
       } else if (newStatus === 'paid') {
+        // Registra un pagamento completo
+        const payment = {
+          id: generatePaymentId(),
+          invoiceId: invoice.id,
+          amount: invoice.remainingAmount,
+          method: 'bank_transfer',
+          date: new Date().toISOString().split('T')[0],
+          reference: `Pagamento fattura ${invoice.number}`,
+          createdAt: new Date().toISOString(),
+          createdBy: user?.id || ''
+        };
+        
+        savePayment(payment);
+        
+        // Aggiorna lo stato della fattura
+        const updatedInvoice = {
+          ...invoice,
+          status: 'paid',
+          paidAmount: invoice.total,
+          remainingAmount: 0,
+          paymentDate: new Date().toISOString().split('T')[0],
+          paymentMethod: 'bank_transfer'
+        };
+        
+        saveInvoice(updatedInvoice);
+        
         await createInvoiceNotification(user?.id || '', invoice, 'paid');
         showNotification(
           'Fattura pagata',
@@ -109,6 +136,11 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
     if (window.confirm('Sei sicuro di voler eliminare questa fattura? Questa azione non può essere annullata.')) {
       onDelete();
     }
+  };
+  
+  const handleDownloadPdf = () => {
+    alert('Funzionalità di download PDF in fase di implementazione');
+    // In una implementazione reale, qui si genererebbe il PDF
   };
 
   return (
@@ -303,7 +335,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           {/* Actions */}
           <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
             <button
-              onClick={() => {/* Download PDF */}}
+              onClick={handleDownloadPdf}
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Download className="w-4 h-4 mr-2" />
