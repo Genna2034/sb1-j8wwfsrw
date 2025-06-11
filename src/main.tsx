@@ -4,6 +4,7 @@ import App from './App.tsx';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { SupabaseProvider } from './contexts/SupabaseContext.tsx';
 import { NotificationProvider } from './contexts/NotificationContext.tsx';
+import { ToastProvider } from './contexts/ToastContext.tsx';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -11,7 +12,9 @@ createRoot(document.getElementById('root')!).render(
     <SupabaseProvider>
       <AuthProvider>
         <NotificationProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </NotificationProvider>
       </AuthProvider>
     </SupabaseProvider>
