@@ -443,3 +443,5 @@ export const initializeNotificationService = (config: NotificationConfig): Notif
 
 // Esporta la classe e il tipo in un'unica istruzione corretta.
 export { NotificationService, type NotificationConfig };
+
+export { NotificationService }
