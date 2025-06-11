@@ -451,15 +451,3 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
     </div>
   );
 };
-
-// Utility function
-const getPaymentMethodName = (method: string): string => {
-  switch (method) {
-    case 'cash': return 'Contanti';
-    case 'card': return 'Carta';
-    case 'bank_transfer': return 'Bonifico Bancario';
-    case 'check': return 'Assegno';
-    case 'insurance': return 'Assicurazione';
-    default: return method;
-  }
-};
