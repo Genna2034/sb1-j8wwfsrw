@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Calendar, Clock, MapPin, Plus, Edit, Trash2, Search, Filter, CheckCircle, User, Phone, Info } from 'lucide-react';
-import { User } from '../types/auth';
+import { User as AuthUser } from '../types/auth';
 import { Patient } from '../types/medical';
 import { getUsers } from '../utils/userManagement';
 import { getPatients, savePatient } from '../utils/medicalStorage';
@@ -11,9 +11,9 @@ import { useNotifications } from '../contexts/NotificationContext';
 export const StaffAssignment: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotifications();
-  const [staff, setStaff] = useState<User[]>([]);
+  const [staff, setStaff] = useState<AuthUser[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<User | null>(null);
+  const [selectedStaff, setSelectedStaff] = useState<AuthUser | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
   const [staffFilter, setStaffFilter] = useState('');
@@ -48,7 +48,7 @@ export const StaffAssignment: React.FC = () => {
     }
   };
 
-  const handleSelectStaff = (staffMember: User) => {
+  const handleSelectStaff = (staffMember: AuthUser) => {
     setSelectedStaff(staffMember);
     setSelectedPatient(null);
   };
@@ -507,9 +507,9 @@ export const StaffAssignment: React.FC = () => {
 
 // Assignment Form Modal Component
 interface AssignmentFormModalProps {
-  staff: User | null;
+  staff: AuthUser | null;
   patient: Patient | null;
-  staffList: User[];
+  staffList: AuthUser[];
   patientList: Patient[];
   onSave: (assignment: any) => void;
   onClose: () => void;
