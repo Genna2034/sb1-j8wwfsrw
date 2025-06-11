@@ -5,6 +5,7 @@ import { getUsers, saveUser, deleteUser, generateUserId } from '../utils/userMan
 import { sendCredentialsEmail, previewEmail, getEmailLogs } from '../utils/emailService';
 import { ExternalIntegrations } from './system/ExternalIntegrations';
 import { DatabaseIntegration } from './system/DatabaseIntegration';
+import { SystemReset } from './system/SystemReset';
 
 export const Management: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'integrations' | 'database' | 'system'>('users');
@@ -155,10 +156,10 @@ export const Management: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-purple-100 text-purple-800';
-      case 'coordinator': return 'bg-blue-100 text-blue-800';
-      case 'staff': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      case 'coordinator': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'staff': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
@@ -187,8 +188,8 @@ export const Management: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestione Sistema</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestione Sistema</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Amministrazione completa del sistema Emmanuel
           </p>
         </div>
@@ -204,8 +205,8 @@ export const Management: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex space-x-8 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -215,8 +216,8 @@ export const Management: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.id
-                      ? 'border-sky-600 text-sky-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -232,63 +233,51 @@ export const Management: React.FC = () => {
           {activeTab === 'users' && (
             <div className="space-y-6">
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
                   <div className="flex items-center">
-                    <div className="p-3 bg-purple-100 rounded-lg">
-                      <Shield className="w-6 h-6 text-purple-600" />
+                    <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                      <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Amministratori</p>
-                      <p className="text-2xl font-bold text-purple-600">{adminUsers.length}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Amministratori</p>
+                      <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{adminUsers.length}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
                   <div className="flex items-center">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <Users className="w-6 h-6 text-blue-600" />
+                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Coordinatori</p>
-                      <p className="text-2xl font-bold text-blue-600">{coordinatorUsers.length}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Coordinatori</p>
+                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{coordinatorUsers.length}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
                   <div className="flex items-center">
-                    <div className="p-3 bg-green-100 rounded-lg">
-                      <Users className="w-6 h-6 text-green-600" />
+                    <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                      <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Staff</p>
-                      <p className="text-2xl font-bold text-green-600">{staffUsers.length}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Staff</p>
+                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">{staffUsers.length}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
                   <div className="flex items-center">
-                    <div className="p-3 bg-gray-100 rounded-lg">
-                      <Key className="w-6 h-6 text-gray-600" />
+                    <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <Key className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Totale Utenti</p>
-                      <p className="text-2xl font-bold text-gray-600">{users.length}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                  <div className="flex items-center">
-                    <div className="p-3 bg-orange-100 rounded-lg">
-                      <Mail className="w-6 h-6 text-orange-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Email Inviate</p>
-                      <p className="text-2xl font-bold text-orange-600">{emailLogs.length}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Totale Utenti</p>
+                      <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">{users.length}</p>
                     </div>
                   </div>
                 </div>
@@ -296,26 +285,26 @@ export const Management: React.FC = () => {
 
               {/* Email Logs */}
               {emailLogs.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-                  <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900">Log Invii Email</h3>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                  <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Log Invii Email</h3>
                   </div>
                   <div className="p-6">
                     <div className="space-y-3">
                       {emailLogs.slice(-5).reverse().map((log) => (
-                        <div key={log.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div key={log.id} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                           <div className="flex items-center">
-                            <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-3" />
                             <div>
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 Credenziali inviate a {log.name}
                               </p>
-                              <p className="text-xs text-gray-600">
+                              <p className="text-xs text-gray-600 dark:text-gray-400">
                                 {log.to} • {new Date(log.sentAt).toLocaleString('it-IT')}
                               </p>
                             </div>
                           </div>
-                          <span className="text-xs text-green-600 font-medium">Inviata</span>
+                          <span className="text-xs text-green-600 dark:text-green-400 font-medium">Inviata</span>
                         </div>
                       ))}
                     </div>
@@ -324,63 +313,63 @@ export const Management: React.FC = () => {
               )}
 
               {/* Users List */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">Utenti Registrati</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Utenti Registrati</h3>
                 </div>
                 
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Utente
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Credenziali
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Ruolo
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Dipartimento
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Azioni
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {users.map((user) => (
-                        <tr key={user.id} className="hover:bg-gray-50">
+                        <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                user.role === 'admin' ? 'bg-purple-100' :
-                                user.role === 'coordinator' ? 'bg-blue-100' : 'bg-green-100'
+                                user.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/30' :
+                                user.role === 'coordinator' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-green-100 dark:bg-green-900/30'
                               }`}>
                                 <span className={`font-semibold ${
-                                  user.role === 'admin' ? 'text-purple-600' :
-                                  user.role === 'coordinator' ? 'text-blue-600' : 'text-green-600'
+                                  user.role === 'admin' ? 'text-purple-600 dark:text-purple-400' :
+                                  user.role === 'coordinator' ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'
                                 }`}>
                                   {user.name.split(' ').map(n => n[0]).join('')}
                                 </span>
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                                <div className="text-sm text-gray-500">{user.position}</div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
+                                <div className="text-sm text-gray-500 dark:text-gray-400">{user.position}</div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900 font-mono">{user.username}</div>
-                            <div className="text-sm text-gray-500 flex items-center">
+                            <div className="text-sm text-gray-900 dark:text-white font-mono">{user.username}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                               <span className="font-mono mr-2">
                                 {showPasswords[user.id] ? user.password || '••••••••' : '••••••••'}
                               </span>
                               <button
                                 onClick={() => togglePasswordVisibility(user.id)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                               >
                                 {showPasswords[user.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                               </button>
@@ -391,14 +380,14 @@ export const Management: React.FC = () => {
                               {getRoleDisplayName(user.role)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {user.department}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => setEditingUser(user)}
-                                className="text-blue-600 hover:text-blue-900"
+                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                                 title="Modifica utente"
                               >
                                 <Edit3 className="w-4 h-4" />
@@ -407,7 +396,7 @@ export const Management: React.FC = () => {
                               <button
                                 onClick={() => handleResendCredentials(user)}
                                 disabled={sendingEmail === user.id}
-                                className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                                className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 disabled:opacity-50"
                                 title="Invia credenziali via email"
                               >
                                 {sendingEmail === user.id ? (
@@ -419,7 +408,7 @@ export const Management: React.FC = () => {
                               
                               <button
                                 onClick={() => handlePreviewEmail(user)}
-                                className="text-purple-600 hover:text-purple-900"
+                                className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
                                 title="Anteprima email"
                               >
                                 <Mail className="w-4 h-4" />
@@ -428,7 +417,7 @@ export const Management: React.FC = () => {
                               {user.role !== 'admin' && (
                                 <button
                                   onClick={() => handleDeleteUser(user.id)}
-                                  className="text-red-600 hover:text-red-900"
+                                  className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                   title="Elimina utente"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -454,10 +443,49 @@ export const Management: React.FC = () => {
           {/* System Tab */}
           {activeTab === 'system' && (
             <div className="space-y-6">
-              <div className="text-center py-8 text-gray-500">
-                <Settings className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p>Configurazioni Sistema</p>
-                <p className="text-sm">Funzionalità avanzate in sviluppo</p>
+              <SystemReset />
+              
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Informazioni Sistema</h3>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Versione</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">5.1.0</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Data Rilascio</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">Giugno 2025</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Ambiente</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">Produzione</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Stato</p>
+                      <div className="flex items-center mt-1">
+                        <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white">Operativo</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-blue-800 dark:text-blue-300">Ambiente Pronto per i Test</h4>
+                        <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                          L'ambiente è stato resettato e preparato per i test reali. Puoi iniziare a creare nuovi pazienti, operatori e assegnazioni.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -543,13 +571,13 @@ const UserModal: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {user ? 'Modifica Utente' : 'Nuovo Utente'}
           </h3>
           {!user && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Le credenziali verranno inviate automaticamente via email
             </p>
           )}
@@ -557,52 +585,52 @@ const UserModal: React.FC<{
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Nome Completo *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               required
             />
           </div>
 
           {!user && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email *
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 placeholder="email@esempio.com"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Le credenziali verranno inviate a questo indirizzo
               </p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Username *
             </label>
             <input
               type="text"
               value={formData.username}
               onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password *
             </label>
             <div className="flex space-x-2">
@@ -610,13 +638,13 @@ const UserModal: React.FC<{
                 type="text"
                 value={formData.password}
                 onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 required
               />
               <button
                 type="button"
                 onClick={generatePassword}
-                className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors dark:bg-gray-600 dark:hover:bg-gray-500"
               >
                 Genera
               </button>
@@ -624,13 +652,13 @@ const UserModal: React.FC<{
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Ruolo *
             </label>
             <select
               value={formData.role}
               onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as any }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               required
             >
               <option value="staff">Staff</option>
@@ -640,32 +668,32 @@ const UserModal: React.FC<{
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Dipartimento *
             </label>
             <select
               value={formData.department}
               onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               required
             >
               <option value="">Seleziona dipartimento</option>
               <option value="Assistenza Domiciliare">Assistenza Domiciliare</option>
-              <option value="Riabilitazione">Riabilitazione</option>
+              <option value="Assistenza Scolastica">Assistenza Scolastica</option>
               <option value="Amministrazione">Amministrazione</option>
               <option value="Coordinamento">Coordinamento</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Posizione *
             </label>
             <input
               type="text"
               value={formData.position}
               onChange={(e) => setFormData(prev => ({ ...prev, position: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="es. Infermiere, Fisioterapista, OSS..."
               required
             />
@@ -675,7 +703,7 @@ const UserModal: React.FC<{
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               disabled={!!sendingEmail}
             >
               Annulla
@@ -700,3 +728,5 @@ const UserModal: React.FC<{
     </div>
   );
 };
+
+export default Management;

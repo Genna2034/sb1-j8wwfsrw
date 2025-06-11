@@ -20,7 +20,7 @@ export const getInvoices = (filters?: {
   type?: string;
 }): Invoice[] => {
   const data = localStorage.getItem(STORAGE_KEYS.INVOICES);
-  let invoices = data ? JSON.parse(data) : generateMockInvoices();
+  let invoices = data ? JSON.parse(data) : [];
   
   if (filters) {
     if (filters.patientId) {
@@ -135,7 +135,7 @@ export const getExpenses = (filters?: {
   dateTo?: string;
 }): Expense[] => {
   const data = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-  let expenses = data ? JSON.parse(data) : generateMockExpenses();
+  let expenses = data ? JSON.parse(data) : [];
   
   if (filters) {
     if (filters.category) {
@@ -228,7 +228,7 @@ export const generateInvoiceFromAppointments = (
   if (!patient) throw new Error('Paziente non trovato');
   
   const items: InvoiceItem[] = appointments.map(apt => ({
-    id: `item-${apt.id}`,
+    id: `item-${crypto.randomUUID()}`,
     description: `${getServiceTypeDisplayName(apt.type)} - ${apt.patientName}`,
     serviceType: mapAppointmentTypeToService(apt.type),
     appointmentId: apt.id,
@@ -341,15 +341,15 @@ export const generateFinancialSummary = (startDate: string, endDate: string): Fi
 
 // UTILITY FUNCTIONS
 export const generateInvoiceId = (): string => {
-  return `INV-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generatePaymentId = (): string => {
-  return `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateExpenseId = (): string => {
-  return `EXP-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 const mapAppointmentTypeToService = (type: string): InvoiceItem['serviceType'] => {
@@ -391,94 +391,11 @@ const calculateAverageDaysToPayment = (invoices: Invoice[], payments: Payment[])
   return Math.round(totalDays / paidInvoices.length);
 };
 
-// MOCK DATA GENERATORS
-const generateMockInvoices = (): Invoice[] => {
-  const patients = getPatients();
-  const invoices: Invoice[] = [];
-  
-  const statuses: Invoice['status'][] = ['paid', 'sent', 'overdue', 'draft'];
-  const types: Invoice['type'][] = ['invoice', 'receipt'];
-  
-  for (let i = 0; i < 15; i++) {
-    const patient = patients[i % patients.length];
-    const issueDate = new Date();
-    issueDate.setDate(issueDate.getDate() - (i * 5));
-    
-    const dueDate = new Date(issueDate);
-    dueDate.setDate(dueDate.getDate() + 30);
-    
-    const subtotal = 50 + (i * 25);
-    const taxAmount = subtotal * 0.22;
-    const total = subtotal + taxAmount;
-    const paidAmount = statuses[i % statuses.length] === 'paid' ? total : 0;
-    
-    invoices.push({
-      id: `INV-${i + 1}`,
-      number: `EMM${(i + 1).toString().padStart(4, '0')}`,
-      patientId: patient.id,
-      patientName: `${patient.personalInfo.name} ${patient.personalInfo.surname}`,
-      patientFiscalCode: patient.personalInfo.fiscalCode,
-      patientAddress: `${patient.personalInfo.address}, ${patient.personalInfo.city}`,
-      issueDate: issueDate.toISOString().split('T')[0],
-      dueDate: dueDate.toISOString().split('T')[0],
-      status: statuses[i % statuses.length],
-      type: types[i % types.length],
-      items: [
-        {
-          id: `item-${i + 1}`,
-          description: 'Visita Medica Domiciliare',
-          serviceType: 'visit',
-          quantity: 1,
-          unitPrice: subtotal,
-          discount: 0,
-          discountType: 'percentage',
-          taxRate: 22,
-          total: subtotal,
-          date: issueDate.toISOString().split('T')[0]
-        }
-      ],
-      subtotal,
-      taxRate: 22,
-      taxAmount,
-      total,
-      paidAmount,
-      remainingAmount: total - paidAmount,
-      paymentMethod: paidAmount > 0 ? 'bank_transfer' : undefined,
-      paymentDate: paidAmount > 0 ? issueDate.toISOString().split('T')[0] : undefined,
-      createdAt: issueDate.toISOString(),
-      updatedAt: issueDate.toISOString(),
-      createdBy: '1',
-      isElectronic: true
-    });
-  }
-  
-  return invoices;
-};
-
-const generateMockExpenses = (): Expense[] => {
-  const categories: Expense['category'][] = [
-    'medical_supplies', 'equipment', 'utilities', 'rent', 'salaries', 'insurance'
-  ];
-  
-  const expenses: Expense[] = [];
-  
-  for (let i = 0; i < 10; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - (i * 3));
-    
-    expenses.push({
-      id: `EXP-${i + 1}`,
-      category: categories[i % categories.length],
-      description: `Spesa ${categories[i % categories.length]}`,
-      amount: 100 + (i * 50),
-      date: date.toISOString().split('T')[0],
-      vendor: `Fornitore ${i + 1}`,
-      paymentMethod: 'bank_transfer',
-      isDeductible: true,
-      createdAt: date.toISOString(),
-      createdBy: '1'
-    });
-  }
-  
-  return expenses;
+// Reset all billing storage data
+export const resetBillingStorageData = (): void => {
+  localStorage.removeItem(STORAGE_KEYS.INVOICES);
+  localStorage.removeItem(STORAGE_KEYS.PAYMENTS);
+  localStorage.removeItem(STORAGE_KEYS.EXPENSES);
+  localStorage.removeItem(STORAGE_KEYS.TAX_REPORTS);
+  // Keep billing settings
 };

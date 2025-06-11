@@ -20,7 +20,7 @@ export const getAppointments = (filters?: {
   type?: string;
 }): Appointment[] => {
   const data = localStorage.getItem(STORAGE_KEYS.APPOINTMENTS);
-  let appointments = data ? JSON.parse(data) : generateMockAppointments();
+  let appointments = data ? JSON.parse(data) : [];
   
   if (filters) {
     if (filters.date) {
@@ -73,7 +73,7 @@ export const deleteAppointment = (appointmentId: string): void => {
 // STAFF SCHEDULES
 export const getStaffSchedules = (date?: string, staffId?: string): StaffSchedule[] => {
   const data = localStorage.getItem(STORAGE_KEYS.STAFF_SCHEDULES);
-  let schedules = data ? JSON.parse(data) : generateMockSchedules();
+  let schedules = data ? JSON.parse(data) : [];
   
   if (date) {
     schedules = schedules.filter((s: StaffSchedule) => s.date === date);
@@ -247,7 +247,7 @@ export const removeFromWaitingList = (waitingId: string): void => {
 
 // UTILITY FUNCTIONS
 export const generateAppointmentId = (): string => {
-  return `APT-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const calculateEndTime = (startTime: string, duration: number): string => {
@@ -284,89 +284,12 @@ export const getAppointmentStats = (staffId?: string, dateRange?: { start: strin
   };
 };
 
-// MOCK DATA GENERATORS
-const generateMockAppointments = (): Appointment[] => {
-  const patients = getPatients();
-  const users = getUsers().filter(u => u.role === 'staff' || u.role === 'coordinator');
-  const appointments: Appointment[] = [];
-  
-  const today = new Date();
-  const types: Appointment['type'][] = ['visit', 'therapy', 'consultation', 'follow-up', 'routine'];
-  const statuses: Appointment['status'][] = ['scheduled', 'confirmed', 'completed', 'cancelled'];
-  const priorities: Appointment['priority'][] = ['low', 'normal', 'high'];
-  const locations: Appointment['location'][] = ['home', 'clinic'];
-  
-  for (let i = 0; i < 20; i++) {
-    const date = new Date(today);
-    date.setDate(date.getDate() + (i - 10));
-    
-    const patient = patients[i % patients.length];
-    const staff = users[i % users.length];
-    const startHour = 8 + (i % 10);
-    const duration = [30, 45, 60][i % 3];
-    
-    appointments.push({
-      id: `APT-${i + 1}`,
-      patientId: patient.id,
-      patientName: `${patient.personalInfo.name} ${patient.personalInfo.surname}`,
-      staffId: staff.id,
-      staffName: staff.name,
-      date: date.toISOString().split('T')[0],
-      startTime: `${startHour.toString().padStart(2, '0')}:00`,
-      endTime: calculateEndTime(`${startHour.toString().padStart(2, '0')}:00`, duration),
-      type: types[i % types.length],
-      status: statuses[i % statuses.length],
-      priority: priorities[i % priorities.length],
-      location: locations[i % locations.length],
-      duration,
-      notes: i % 3 === 0 ? 'Controllo di routine' : undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: '1',
-      cost: [50, 75, 100, 150][i % 4]
-    });
-  }
-  
-  return appointments;
-};
-
-const generateMockSchedules = (): StaffSchedule[] => {
-  const users = getUsers().filter(u => u.role === 'staff' || u.role === 'coordinator');
-  const schedules: StaffSchedule[] = [];
-  
-  const today = new Date();
-  
-  for (let dayOffset = -7; dayOffset <= 14; dayOffset++) {
-    const date = new Date(today);
-    date.setDate(date.getDate() + dayOffset);
-    
-    // Skip weekends for most staff
-    if (date.getDay() === 0 || date.getDay() === 6) continue;
-    
-    users.forEach((staff, index) => {
-      schedules.push({
-        id: `SCH-${staff.id}-${date.toISOString().split('T')[0]}`,
-        staffId: staff.id,
-        staffName: staff.name,
-        date: date.toISOString().split('T')[0],
-        workingHours: {
-          start: index % 2 === 0 ? '08:00' : '09:00',
-          end: index % 2 === 0 ? '16:00' : '17:00'
-        },
-        breaks: [
-          {
-            start: '12:00',
-            end: '13:00',
-            reason: 'Pausa pranzo'
-          }
-        ],
-        isAvailable: Math.random() > 0.1, // 90% availability
-        maxAppointments: 8,
-        appointmentDuration: 30,
-        location: staff.department === 'Assistenza Domiciliare' ? 'home' : 'clinic'
-      });
-    });
-  }
-  
-  return schedules;
+// Reset all appointment storage data
+export const resetAppointmentStorageData = (): void => {
+  localStorage.removeItem(STORAGE_KEYS.APPOINTMENTS);
+  localStorage.removeItem(STORAGE_KEYS.STAFF_SCHEDULES);
+  localStorage.removeItem(STORAGE_KEYS.APPOINTMENT_SLOTS);
+  localStorage.removeItem(STORAGE_KEYS.REMINDERS);
+  localStorage.removeItem(STORAGE_KEYS.RECURRING);
+  localStorage.removeItem(STORAGE_KEYS.WAITING_LIST);
 };

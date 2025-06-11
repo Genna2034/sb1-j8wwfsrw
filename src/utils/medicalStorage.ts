@@ -11,7 +11,7 @@ const STORAGE_KEYS = {
 // PATIENTS
 export const getPatients = (): Patient[] => {
   const data = localStorage.getItem(STORAGE_KEYS.PATIENTS);
-  return data ? JSON.parse(data) : generateMockPatients();
+  return data ? JSON.parse(data) : [];
 };
 
 export const savePatient = (patient: Patient): void => {
@@ -36,7 +36,7 @@ export const deletePatient = (patientId: string): void => {
 // MEDICAL RECORDS
 export const getMedicalRecords = (patientId?: string): MedicalRecord[] => {
   const data = localStorage.getItem(STORAGE_KEYS.MEDICAL_RECORDS);
-  const records = data ? JSON.parse(data) : generateMockMedicalRecords();
+  const records = data ? JSON.parse(data) : [];
   return patientId ? records.filter((r: MedicalRecord) => r.patientId === patientId) : records;
 };
 
@@ -56,7 +56,7 @@ export const saveMedicalRecord = (record: MedicalRecord): void => {
 // APPOINTMENTS
 export const getAppointments = (patientId?: string): Appointment[] => {
   const data = localStorage.getItem(STORAGE_KEYS.APPOINTMENTS);
-  const appointments = data ? JSON.parse(data) : generateMockAppointments();
+  const appointments = data ? JSON.parse(data) : [];
   return patientId ? appointments.filter((a: Appointment) => a.patientId === patientId) : appointments;
 };
 
@@ -76,7 +76,7 @@ export const saveAppointment = (appointment: Appointment): void => {
 // TASKS
 export const getTasks = (patientId?: string, assignedTo?: string): Task[] => {
   const data = localStorage.getItem(STORAGE_KEYS.TASKS);
-  let tasks = data ? JSON.parse(data) : generateMockTasks();
+  let tasks = data ? JSON.parse(data) : [];
   
   if (patientId) {
     tasks = tasks.filter((t: Task) => t.patientId === patientId);
@@ -117,174 +117,30 @@ export const saveCommunication = (communication: Communication): void => {
 
 // UTILITY FUNCTIONS
 export const generatePatientId = (): string => {
-  return `PAT-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateRecordId = (): string => {
-  return `REC-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateAppointmentId = (): string => {
-  return `APP-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateTaskId = (): string => {
-  return `TSK-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
 export const generateCommunicationId = (): string => {
-  return `COM-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  return crypto.randomUUID();
 };
 
-// MOCK DATA GENERATORS
-const generateMockPatients = (): Patient[] => {
-  return [
-    {
-      id: 'PAT-001',
-      personalInfo: {
-        name: 'Giuseppe',
-        surname: 'Marino',
-        dateOfBirth: '1945-03-15',
-        fiscalCode: 'MRNGSPP45C15F839K',
-        address: 'Via Roma 123',
-        city: 'Napoli',
-        postalCode: '80100',
-        phone: '081-1234567',
-        email: 'giuseppe.marino@email.com',
-        emergencyContact: {
-          name: 'Maria Marino',
-          relationship: 'Moglie',
-          phone: '081-1234568'
-        }
-      },
-      medicalInfo: {
-        allergies: ['Penicillina', 'Lattosio'],
-        chronicConditions: ['Diabete Tipo 2', 'Ipertensione'],
-        currentMedications: [
-          {
-            id: 'MED-001',
-            name: 'Metformina',
-            dosage: '500mg',
-            frequency: '2 volte al giorno',
-            startDate: '2024-01-01',
-            prescribedBy: 'Dr. Rossi'
-          }
-        ],
-        bloodType: 'A+',
-        height: 175,
-        weight: 80,
-        notes: 'Paziente collaborativo, controllo glicemia quotidiano'
-      },
-      assignedStaff: ['3', '6'],
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-15T00:00:00Z',
-      status: 'active'
-    },
-    {
-      id: 'PAT-002',
-      personalInfo: {
-        name: 'Maria',
-        surname: 'Rossi',
-        dateOfBirth: '1950-07-22',
-        fiscalCode: 'RSSMRA50L62F839P',
-        address: 'Via Garibaldi 45',
-        city: 'Napoli',
-        postalCode: '80100',
-        phone: '081-2345678',
-        emergencyContact: {
-          name: 'Antonio Rossi',
-          relationship: 'Figlio',
-          phone: '081-2345679'
-        }
-      },
-      medicalInfo: {
-        allergies: [],
-        chronicConditions: ['Artrite Reumatoide'],
-        currentMedications: [
-          {
-            id: 'MED-002',
-            name: 'Metotrexato',
-            dosage: '15mg',
-            frequency: '1 volta a settimana',
-            startDate: '2024-01-01',
-            prescribedBy: 'Dr. Bianchi'
-          }
-        ],
-        bloodType: 'B+',
-        height: 160,
-        weight: 65,
-        notes: 'Post-operatorio, medicazione quotidiana'
-      },
-      assignedStaff: ['3'],
-      createdAt: '2024-01-02T00:00:00Z',
-      updatedAt: '2024-01-16T00:00:00Z',
-      status: 'active'
-    }
-  ];
-};
-
-const generateMockMedicalRecords = (): MedicalRecord[] => {
-  return [
-    {
-      id: 'REC-001',
-      patientId: 'PAT-001',
-      date: '2024-01-15',
-      time: '09:00',
-      type: 'measurement',
-      title: 'Controllo Glicemia',
-      description: 'Misurazione glicemia a digiuno',
-      staffId: '3',
-      staffName: 'Anna Verdi',
-      vitals: {
-        bloodSugar: 120,
-        bloodPressure: { systolic: 140, diastolic: 90 },
-        weight: 80,
-        notes: 'Valori nella norma'
-      }
-    },
-    {
-      id: 'REC-002',
-      patientId: 'PAT-002',
-      date: '2024-01-15',
-      time: '10:30',
-      type: 'therapy',
-      title: 'Fisioterapia',
-      description: 'Sessione di fisioterapia per artrite',
-      staffId: '4',
-      staffName: 'Luca Bianchi'
-    }
-  ];
-};
-
-const generateMockAppointments = (): Appointment[] => {
-  return [
-    {
-      id: 'APP-001',
-      patientId: 'PAT-001',
-      staffId: '3',
-      date: '2024-01-20',
-      startTime: '09:00',
-      endTime: '09:30',
-      type: 'visit',
-      status: 'scheduled',
-      notes: 'Controllo mensile diabete',
-      location: 'Domicilio'
-    }
-  ];
-};
-
-const generateMockTasks = (): Task[] => {
-  return [
-    {
-      id: 'TSK-001',
-      patientId: 'PAT-001',
-      assignedTo: '3',
-      title: 'Controllo Glicemia',
-      description: 'Effettuare controllo glicemia mattutino',
-      priority: 'high',
-      status: 'pending',
-      dueDate: '2024-01-16',
-      createdAt: '2024-01-15T00:00:00Z'
-    }
-  ];
+// Reset all medical storage data
+export const resetMedicalStorageData = (): void => {
+  localStorage.removeItem(STORAGE_KEYS.PATIENTS);
+  localStorage.removeItem(STORAGE_KEYS.MEDICAL_RECORDS);
+  localStorage.removeItem(STORAGE_KEYS.APPOINTMENTS);
+  localStorage.removeItem(STORAGE_KEYS.TASKS);
+  localStorage.removeItem(STORAGE_KEYS.COMMUNICATIONS);
 };
