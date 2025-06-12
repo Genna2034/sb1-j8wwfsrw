@@ -46,14 +46,54 @@ const DEFAULT_USERS: User[] = [
 export const initializeDefaultUsers = (): void => {
   console.log('Inizializzazione utenti di default...');
   
-  // Always ensure default users are properly formatted and saved
-  const validDefaultUsers = DEFAULT_USERS.map(user => ({
-    ...user,
-    id: isValidUUID(user.id) ? user.id : generateValidUUID()
-  }));
-  
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(validDefaultUsers));
-  console.log('Utenti di default salvati:', validDefaultUsers);
+  try {
+    // Check if users already exist
+    const existingData = localStorage.getItem(STORAGE_KEY);
+    if (existingData) {
+      try {
+        const existingUsers = JSON.parse(existingData);
+        if (Array.isArray(existingUsers) && existingUsers.length > 0) {
+          console.log('Utenti già presenti nel localStorage:', existingUsers.length);
+          
+          // Ensure all default users exist
+          let needsUpdate = false;
+          const updatedUsers = [...existingUsers];
+          
+          DEFAULT_USERS.forEach(defaultUser => {
+            const exists = existingUsers.some(u => u.username === defaultUser.username);
+            if (!exists) {
+              console.log(`Aggiungendo utente di default mancante: ${defaultUser.username}`);
+              updatedUsers.push({
+                ...defaultUser,
+                id: isValidUUID(defaultUser.id) ? defaultUser.id : generateValidUUID()
+              });
+              needsUpdate = true;
+            }
+          });
+          
+          if (needsUpdate) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
+            console.log('Utenti aggiornati con quelli di default mancanti');
+          }
+          
+          return;
+        }
+      } catch (error) {
+        console.error('Errore nel parsing degli utenti esistenti:', error);
+      }
+    }
+    
+    // Always ensure default users are properly formatted and saved
+    const validDefaultUsers = DEFAULT_USERS.map(user => ({
+      ...user,
+      id: isValidUUID(user.id) ? user.id : generateValidUUID()
+    }));
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(validDefaultUsers));
+    console.log('Utenti di default salvati:', validDefaultUsers);
+  } catch (error) {
+    console.error('Errore nell\'inizializzazione degli utenti di default:', error);
+  }
 };
 
 export const getUsers = (): User[] => {
@@ -157,7 +197,7 @@ export const generateUserId = (): string => {
 
 export const getUserByCredentials = (username: string, password: string): User | null => {
   console.log('=== DEBUG LOGIN ===');
-  console.log('Credenziali inserite:', { username, password });
+  console.log('Credenziali inserite:', { username, password: '***' });
   
   const users = getUsers();
   console.log('Tutti gli utenti nel sistema:', users);

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emmanuel Debug Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #0284c7;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #0369a1;
+      margin-top: 30px;
+    }
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .button {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    .button:hover {
+      background: #0369a1;
+    }
+    .button.danger {
+      background: #ef4444;
+    }
+    .button.danger:hover {
+      background: #dc2626;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    .flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Emmanuel Debug Page</h1>
+  <p>This page helps diagnose issues with the Emmanuel application deployment.</p>
+  
+  <div class="card">
+    <h2>LocalStorage Inspector</h2>
+    <p>View and manage localStorage data:</p>
+    <div class="flex">
+      <button class="button" onclick="showLocalStorage()">Show LocalStorage</button>
+      <button class="button" onclick="resetUsers()">Reset Users</button>
+      <button class="button danger" onclick="clearLocalStorage()">Clear All LocalStorage</button>
+    </div>
+    <pre id="localStorage-output">Click "Show LocalStorage" to view data</pre>
+  </div>
+  
+  <div class="card">
+    <h2>Authentication Test</h2>
+    <p>Test login with default credentials:</p>
+    <div class="flex">
+      <button class="button" onclick="testLogin('admin.emmanuel', 'Emmanuel2024!')">Login as Admin</button>
+      <button class="button" onclick="testLogin('gennaro.borriello', 'Coord2024!')">Login as Coordinator</button>
+      <button class="button" onclick="testLogin('infermiere.01', 'Staff2024!')">Login as Staff</button>
+    </div>
+    <pre id="auth-output">Click a button to test login</pre>
+  </div>
+  
+  <div class="card">
+    <h2>Application Navigation</h2>
+    <p>Navigate to specific parts of the application:</p>
+    <div class="flex">
+      <button class="button" onclick="navigateTo('/')">Home</button>
+      <button class="button" onclick="navigateTo('/?debug=true')">Debug Mode</button>
+      <button class="button" onclick="navigateTo('/advanced-billing')">Advanced Billing</button>
+      <button class="button" onclick="navigateTo('/assignments')">Staff Assignment</button>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>System Information</h2>
+    <div id="system-info">Loading system information...</div>
+  </div>
+  
+  <script>
+    // Show localStorage contents
+    function showLocalStorage() {
+      const output = document.getElementById('localStorage-output');
+      const items = {};
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('emmanuel_')) {
+          try {
+            items[key] = JSON.parse(localStorage.getItem(key));
+          } catch (e) {
+            items[key] = localStorage.getItem(key);
+          }
+        }
+      }
+      
+      output.textContent = JSON.stringify(items, null, 2);
+    }
+    
+    // Clear all localStorage
+    function clearLocalStorage() {
+      if (confirm('Are you sure you want to clear all localStorage data? This will log you out.')) {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('emmanuel_')) {
+            keysToRemove.push(key);
+          }
+        }
+        
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        document.getElementById('localStorage-output').textContent = 'LocalStorage cleared!';
+        
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      }
+    }
+    
+    // Reset users to default
+    function resetUsers() {
+      const defaultUsers = [
+        {
+          id: crypto.randomUUID(),
+          username: 'admin.emmanuel',
+          name: 'Mario Rossi',
+          role: 'admin',
+          department: 'Amministrazione',
+          position: 'Amministratore Sistema',
+          password: 'Emmanuel2024!'
+        },
+        {
+          id: crypto.randomUUID(),
+          username: 'gennaro.borriello',
+          name: 'Gennaro Borriello',
+          role: 'coordinator',
+          department: 'Assistenza Domiciliare',
+          position: 'Coordinatore',
+          password: 'Coord2024!'
+        },
+        {
+          id: crypto.randomUUID(),
+          username: 'infermiere.01',
+          name: 'Anna Verdi',
+          role: 'staff',
+          department: 'Assistenza Domiciliare',
+          position: 'Infermiere',
+          password: 'Staff2024!'
+        }
+      ];
+      
+      localStorage.setItem('emmanuel_users', JSON.stringify(defaultUsers));
+      document.getElementById('localStorage-output').textContent = 'Users reset to default!';
+      showLocalStorage();
+    }
+    
+    // Test login
+    function testLogin(username, password) {
+      const output = document.getElementById('auth-output');
+      output.textContent = `Attempting login with ${username}...`;
+      
+      try {
+        // Get users from localStorage
+        const usersData = localStorage.getItem('emmanuel_users');
+        if (!usersData) {
+          output.textContent = 'No users found in localStorage. Initializing defaults...';
+          resetUsers();
+        }
+        
+        const users = JSON.parse(localStorage.getItem('emmanuel_users') || '[]');
+        const user = users.find(u => u.username === username && u.password === password);
+        
+        if (user) {
+          // Create token
+          const token = Math.random().toString(36).substr(2) + Date.now().toString(36);
+          
+          // Save to localStorage
+          const userToSave = { ...user };
+          delete userToSave.password;
+          
+          localStorage.setItem('emmanuel_user', JSON.stringify(userToSave));
+          localStorage.setItem('emmanuel_token', token);
+          localStorage.setItem('emmanuel_session_timestamp', new Date().toISOString());
+          
+          output.textContent = `Login successful for ${user.name} (${user.role})!\nRedirecting to application...`;
+          
+          setTimeout(() => {
+            window.location.href = '/?debug=true';
+          }, 1500);
+        } else {
+          output.textContent = `Login failed for ${username}. User not found or password incorrect.`;
+        }
+      } catch (error) {
+        output.textContent = `Error during login: ${error.message}`;
+      }
+    }
+    
+    // Navigate to a specific page
+    function navigateTo(path) {
+      window.location.href = path;
+    }
+    
+    // Load system information
+    function loadSystemInfo() {
+      const infoElement = document.getElementById('system-info');
+      
+      const info = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        cookiesEnabled: navigator.cookieEnabled,
+        localStorage: typeof localStorage !== 'undefined',
+        sessionStorage: typeof sessionStorage !== 'undefined',
+        indexedDB: typeof indexedDB !== 'undefined',
+        serviceWorker: 'serviceWorker' in navigator,
+        online: navigator.onLine,
+        url: window.location.href,
+        protocol: window.location.protocol,
+        host: window.location.host
+      };
+      
+      let html = '<h3>Browser Information</h3>';
+      html += '<ul>';
+      for (const [key, value] of Object.entries(info)) {
+        html += `<li><strong>${key}:</strong> ${value}</li>`;
+      }
+      html += '</ul>';
+      
+      infoElement.innerHTML = html;
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSystemInfo();
+    });
+  </script>
+</body>
+</html>

@@ -16,6 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = !useMediaQuery(breakpoints.lg);
+  const [isDebugMode, setIsDebugMode] = useState(false);
 
   // Listen for tab change events from dashboard quick actions
   useEffect(() => {
@@ -27,6 +28,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     window.addEventListener('changeTab', handleTabChange as EventListener);
     return () => window.removeEventListener('changeTab', handleTabChange as EventListener);
   }, [onTabChange]);
+
+  // Check for debug mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('debug')) {
+      setIsDebugMode(true);
+      console.log('🔍 Debug mode enabled in Layout');
+      console.log('User:', user);
+    }
+  }, [user]);
 
   const handleLogout = () => {
     if (window.confirm('Sei sicuro di voler uscire?')) {
@@ -45,6 +56,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   };
 
   const getTabsForRole = () => {
+    if (isDebugMode) {
+      console.log('🔍 Generating tabs for role:', user?.role);
+    }
+    
     const baseTabs = [
       { id: 'dashboard', label: 'Dashboard', icon: Home }
     ];
@@ -95,6 +110,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   };
 
   const tabs = getTabsForRole();
+  
+  if (isDebugMode) {
+    console.log('🔍 Available tabs:', tabs.map(t => t.id));
+    console.log('🔍 Active tab:', activeTab);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -129,6 +149,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               
               {/* Notifications */}
               <NotificationBadge onClick={() => setShowNotifications(true)} />
+
+              {/* Debug Mode Indicator */}
+              {isDebugMode && (
+                <div className="bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                  DEBUG
+                </div>
+              )}
 
               {/* User Menu */}
               <div className="flex items-center space-x-2">

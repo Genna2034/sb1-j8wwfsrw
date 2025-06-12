@@ -105,6 +105,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
+    
+    // Listen for storage events from other tabs
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'emmanuel_user' || event.key === 'emmanuel_token') {
+        console.log('🔄 Storage change detected, refreshing auth state');
+        if (isValidSession()) {
+          const user = getCurrentUser();
+          const token = localStorage.getItem('emmanuel_token');
+          
+          if (user && token) {
+            setAuthState({
+              user,
+              isAuthenticated: true,
+              token
+            });
+          } else {
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              token: null
+            });
+          }
+        } else {
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            token: null
+          });
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const login = (user: User, token: string) => {

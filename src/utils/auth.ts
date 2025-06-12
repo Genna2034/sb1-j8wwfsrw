@@ -56,6 +56,9 @@ export const saveUserSession = (user: User, token: string): void => {
       userSaved: !!savedUser, 
       tokenSaved: !!savedToken 
     });
+    
+    // Forza un evento di storage per aggiornare altre schede
+    window.dispatchEvent(new Event('storage'));
   } catch (error) {
     console.error('💥 Errore nel salvataggio sessione:', error);
     throw error;
@@ -69,6 +72,9 @@ export const clearUserSession = (): void => {
     localStorage.removeItem('emmanuel_token');
     localStorage.removeItem('emmanuel_session_timestamp');
     console.log('✅ Sessione cancellata');
+    
+    // Forza un evento di storage per aggiornare altre schede
+    window.dispatchEvent(new Event('storage'));
   } catch (error) {
     console.error('💥 Errore nella cancellazione sessione:', error);
   }
