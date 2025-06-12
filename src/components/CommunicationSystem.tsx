@@ -3,10 +3,13 @@ import { MessageSquare, Bell, CheckSquare, Users, Send, Calendar, Settings, BarC
 import { getMessages, getNotifications, getTasks } from '../utils/communicationStorage';
 import { MessageCenter } from './communications/MessageCenter';
 import { TaskManager } from './communications/TaskManager';
+import { NotificationSettings } from './system/NotificationSettings';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationContext';
 
 export const CommunicationSystem: React.FC = () => {
   const { user } = useAuth();
+  const { unreadCount: unreadNotifications } = useNotifications();
   const [activeTab, setActiveTab] = useState<'messages' | 'tasks' | 'notifications' | 'automation' | 'family'>('messages');
   const [stats, setStats] = useState<any>({});
 
@@ -16,7 +19,6 @@ export const CommunicationSystem: React.FC = () => {
 
   const loadStats = () => {
     const messages = getMessages({ userId: user?.id });
-    const notifications = getNotifications(user?.id);
     const tasks = getTasks({ assignedTo: user?.id });
     
     setStats({
@@ -25,8 +27,6 @@ export const CommunicationSystem: React.FC = () => {
         msg.toUserIds.includes(user?.id || '') && 
         !msg.readBy.some(read => read.userId === user?.id)
       ).length,
-      totalNotifications: notifications.length,
-      unreadNotifications: notifications.filter(n => !n.isRead).length,
       totalTasks: tasks.length,
       pendingTasks: tasks.filter(t => t.status === 'pending').length,
       overdueTasks: tasks.filter(t => t.status === 'overdue').length,
@@ -47,8 +47,8 @@ export const CommunicationSystem: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sistema Comunicazioni</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sistema Comunicazioni</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Centro messaggi, notifiche e gestione task integrata
           </p>
         </div>
@@ -56,61 +56,61 @@ export const CommunicationSystem: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <MessageSquare className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Messaggi</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.totalMessages || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Messaggi</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.totalMessages || 0}</p>
               {stats.unreadMessages > 0 && (
-                <p className="text-xs text-red-600">{stats.unreadMessages} non letti</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{stats.unreadMessages} non letti</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-yellow-100 rounded-lg">
-              <CheckSquare className="w-6 h-6 text-yellow-600" />
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+              <CheckSquare className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Task</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.totalTasks || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Task</p>
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.totalTasks || 0}</p>
               {stats.pendingTasks > 0 && (
-                <p className="text-xs text-yellow-600">{stats.pendingTasks} in attesa</p>
+                <p className="text-xs text-yellow-600 dark:text-yellow-400">{stats.pendingTasks} in attesa</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Bell className="w-6 h-6 text-purple-600" />
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+              <Bell className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Notifiche</p>
-              <p className="text-2xl font-bold text-purple-600">{stats.totalNotifications || 0}</p>
-              {stats.unreadNotifications > 0 && (
-                <p className="text-xs text-purple-600">{stats.unreadNotifications} nuove</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Notifiche</p>
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{unreadNotifications || 0}</p>
+              {unreadNotifications > 0 && (
+                <p className="text-xs text-purple-600 dark:text-purple-400">{unreadNotifications} nuove</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <BarChart3 className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <BarChart3 className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completati</p>
-              <p className="text-2xl font-bold text-green-600">{stats.completedTasks || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completati</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.completedTasks || 0}</p>
               {stats.overdueTasks > 0 && (
-                <p className="text-xs text-red-600">{stats.overdueTasks} in ritardo</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{stats.overdueTasks} in ritardo</p>
               )}
             </div>
           </div>
@@ -118,8 +118,8 @@ export const CommunicationSystem: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex space-x-8 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -129,8 +129,8 @@ export const CommunicationSystem: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.id
-                      ? 'border-sky-600 text-sky-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -146,9 +146,9 @@ export const CommunicationSystem: React.FC = () => {
                       {stats.pendingTasks}
                     </span>
                   )}
-                  {tab.id === 'notifications' && stats.unreadNotifications > 0 && (
+                  {tab.id === 'notifications' && unreadNotifications > 0 && (
                     <span className="bg-purple-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                      {stats.unreadNotifications}
+                      {unreadNotifications}
                     </span>
                   )}
                 </button>
@@ -163,44 +163,38 @@ export const CommunicationSystem: React.FC = () => {
           
           {activeTab === 'tasks' && <TaskManager />}
           
-          {activeTab === 'notifications' && (
-            <div className="text-center py-8 text-gray-500">
-              <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>Centro Notifiche</p>
-              <p className="text-sm">Gestione avanzata notifiche in sviluppo</p>
-            </div>
-          )}
+          {activeTab === 'notifications' && <NotificationSettings />}
           
           {activeTab === 'automation' && (
             <div className="space-y-6">
-              <div className="text-center py-8 text-gray-500">
-                <Settings className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p>Automazione Comunicazioni</p>
-                <p className="text-sm">Configurazione automazioni e template</p>
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <Settings className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                <p>Centro Automazione</p>
+                <p className="text-sm">Gestione avanzata automazioni in sviluppo</p>
               </div>
               
               {/* Automation Preview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-blue-900 mb-3">Promemoria Appuntamenti</h3>
-                  <p className="text-blue-800 text-sm mb-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                  <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-3">Promemoria Appuntamenti</h3>
+                  <p className="text-blue-800 dark:text-blue-400 text-sm mb-4">
                     Invio automatico promemoria 24h prima degli appuntamenti
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-blue-600 text-sm">Stato: Attivo</span>
+                    <span className="text-blue-600 dark:text-blue-400 text-sm">Stato: Attivo</span>
                     <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm">
                       Configura
                     </button>
                   </div>
                 </div>
                 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-green-900 mb-3">Promemoria Fatture</h3>
-                  <p className="text-green-800 text-sm mb-4">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                  <h3 className="font-semibold text-green-900 dark:text-green-300 mb-3">Promemoria Fatture</h3>
+                  <p className="text-green-800 dark:text-green-400 text-sm mb-4">
                     Notifiche automatiche per fatture in scadenza
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-green-600 text-sm">Stato: Attivo</span>
+                    <span className="text-green-600 dark:text-green-400 text-sm">Stato: Attivo</span>
                     <button className="px-3 py-1 bg-green-600 text-white rounded text-sm">
                       Configura
                     </button>
@@ -212,32 +206,32 @@ export const CommunicationSystem: React.FC = () => {
           
           {activeTab === 'family' && (
             <div className="space-y-6">
-              <div className="text-center py-8 text-gray-500">
-                <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <Users className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
                 <p>Portale Familiari</p>
                 <p className="text-sm">Comunicazioni con familiari dei pazienti</p>
               </div>
               
               {/* Family Access Preview */}
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                <h3 className="font-semibold text-purple-900 mb-3">Accessi Familiari Attivi</h3>
+              <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6">
+                <h3 className="font-semibold text-purple-900 dark:text-purple-300 mb-3">Accessi Familiari Attivi</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white rounded border">
+                  <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border">
                     <div>
-                      <p className="font-medium text-gray-900">Maria Rossi</p>
-                      <p className="text-sm text-gray-600">Figlia di Giuseppe Marino</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Maria Rossi</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Figlia di Giuseppe Marino</p>
                     </div>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                    <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full text-xs">
                       Attivo
                     </span>
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 bg-white rounded border">
+                  <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border">
                     <div>
-                      <p className="font-medium text-gray-900">Antonio Bianchi</p>
-                      <p className="text-sm text-gray-600">Marito di Anna Bianchi</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Antonio Bianchi</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Marito di Anna Bianchi</p>
                     </div>
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 rounded-full text-xs">
                       In attesa
                     </span>
                   </div>

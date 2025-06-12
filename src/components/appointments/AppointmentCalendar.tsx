@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Clock, User, MapPin, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, Clock, User, MapPin, AlertCircle, CheckCircle, XCircle, MessageCircle, RotateCcw, Activity } from 'lucide-react';
 import { Appointment, StaffSchedule } from '../../types/appointments';
 import { getAppointments, getStaffSchedules } from '../../utils/appointmentStorage';
 import { useAuth } from '../../contexts/AuthContext';
@@ -83,14 +83,14 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'confirmed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'in-progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'completed': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      case 'no-show': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'rescheduled': return 'bg-purple-100 text-purple-800 border-purple-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'scheduled': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
+      case 'confirmed': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800';
+      case 'in-progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800';
+      case 'completed': return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800';
+      case 'no-show': return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
+      case 'rescheduled': return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
     }
   };
 
@@ -102,17 +102,17 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       case 'follow-up': return <RotateCcw className="w-3 h-3" />;
       case 'emergency': return <AlertTriangle className="w-3 h-3" />;
       case 'routine': return <CheckCircle className="w-3 h-3" />;
-      default: return <Calendar className="w-3 h-3" />;
+      default: return <CalendarIcon className="w-3 h-3" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'border-l-4 border-red-500';
-      case 'high': return 'border-l-4 border-orange-500';
-      case 'normal': return 'border-l-4 border-blue-500';
-      case 'low': return 'border-l-4 border-gray-500';
-      default: return 'border-l-4 border-gray-500';
+      case 'urgent': return 'border-l-4 border-red-500 dark:border-red-700';
+      case 'high': return 'border-l-4 border-orange-500 dark:border-orange-700';
+      case 'normal': return 'border-l-4 border-blue-500 dark:border-blue-700';
+      case 'low': return 'border-l-4 border-gray-500 dark:border-gray-600';
+      default: return 'border-l-4 border-gray-500 dark:border-gray-600';
     }
   };
 
@@ -128,10 +128,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     }
 
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               {currentDate.toLocaleDateString('it-IT', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -143,8 +143,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               {daySchedule && (
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   daySchedule.isAvailable 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                    : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                 }`}>
                   {daySchedule.isAvailable 
                     ? `Disponibile ${daySchedule.workingHours.start}-${daySchedule.workingHours.end}`
@@ -170,8 +170,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             );
 
             return (
-              <div key={timeSlot} className="flex border-b border-gray-50 hover:bg-gray-25">
-                <div className="w-20 p-3 text-sm text-gray-500 border-r border-gray-100 bg-gray-50">
+              <div key={timeSlot} className="flex border-b border-gray-50 dark:border-gray-700 hover:bg-gray-25 dark:hover:bg-gray-750">
+                <div className="w-20 p-3 text-sm text-gray-500 dark:text-gray-400 border-r border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                   {timeSlot}
                 </div>
                 <div className="flex-1 p-3 min-h-[60px]">
@@ -190,7 +190,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           {appointment.startTime}-{appointment.endTime}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-3 text-xs text-gray-600">
+                      <div className="flex items-center space-x-3 text-xs text-gray-600 dark:text-gray-400">
                         <span className="flex items-center">
                           <User className="w-3 h-3 mr-1" />
                           {appointment.staffName}
@@ -206,7 +206,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   {slotAppointments.length === 0 && daySchedule?.isAvailable && (
                     <button
                       onClick={() => onAddAppointment(dateStr, timeSlot)}
-                      className="w-full h-full flex items-center justify-center text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                      className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       <span className="text-sm">Aggiungi appuntamento</span>
@@ -233,23 +233,23 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     }
 
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Settimana del {startOfWeek.toLocaleDateString('it-IT')}
           </h3>
         </div>
 
-        <div className="grid grid-cols-8 border-b border-gray-200">
-          <div className="p-3 text-sm font-medium text-gray-500 border-r border-gray-200">
+        <div className="grid grid-cols-8 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-3 text-sm font-medium text-gray-500 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
             Orario
           </div>
           {weekDays.map((day, index) => (
-            <div key={index} className="p-3 text-center border-r border-gray-200 last:border-r-0">
-              <div className="text-sm font-medium text-gray-900">
+            <div key={index} className="p-3 text-center border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
                 {day.toLocaleDateString('it-IT', { weekday: 'short' })}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 {day.getDate()}
               </div>
             </div>
@@ -258,8 +258,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
         <div className="max-h-96 overflow-y-auto">
           {Array.from({ length: 13 }, (_, i) => i + 7).map((hour) => (
-            <div key={hour} className="grid grid-cols-8 border-b border-gray-50">
-              <div className="p-3 text-sm text-gray-500 border-r border-gray-100 bg-gray-50">
+            <div key={hour} className="grid grid-cols-8 border-b border-gray-50 dark:border-gray-700">
+              <div className="p-3 text-sm text-gray-500 dark:text-gray-400 border-r border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                 {hour.toString().padStart(2, '0')}:00
               </div>
               {weekDays.map((day, dayIndex) => {
@@ -272,7 +272,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 );
 
                 return (
-                  <div key={dayIndex} className="p-1 border-r border-gray-100 last:border-r-0 min-h-[50px]">
+                  <div key={dayIndex} className="p-1 border-r border-gray-100 dark:border-gray-700 last:border-r-0 min-h-[50px]">
                     {hourAppointments.map((appointment) => (
                       <div
                         key={appointment.id}
@@ -310,16 +310,16 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     }
 
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {currentDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
           </h3>
         </div>
 
-        <div className="grid grid-cols-7 border-b border-gray-200">
+        <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
           {['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'].map((day) => (
-            <div key={day} className="p-3 text-center text-sm font-medium text-gray-500 border-r border-gray-200 last:border-r-0">
+            <div key={day} className="p-3 text-center text-sm font-medium text-gray-500 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
               {day}
             </div>
           ))}
@@ -337,11 +337,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               <div
                 key={index}
                 onClick={() => onAddAppointment(dateStr)}
-                className={`min-h-[100px] p-2 border-r border-b border-gray-100 last:border-r-0 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  !isCurrentMonth ? 'bg-gray-25 text-gray-400' : ''
-                } ${isToday ? 'bg-sky-50' : ''} ${isSelected ? 'ring-2 ring-sky-500' : ''}`}
+                className={`min-h-[100px] p-2 border-r border-b border-gray-100 dark:border-gray-700 last:border-r-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  !isCurrentMonth ? 'bg-gray-25 dark:bg-gray-750 text-gray-400 dark:text-gray-500' : ''
+                } ${isToday ? 'bg-sky-50 dark:bg-sky-900/20' : ''} ${isSelected ? 'ring-2 ring-sky-500 dark:ring-sky-400' : ''}`}
               >
-                <div className={`text-sm font-medium mb-1 ${isToday ? 'text-sky-600' : ''}`}>
+                <div className={`text-sm font-medium mb-1 ${isToday ? 'text-sky-600 dark:text-sky-400' : 'text-gray-900 dark:text-white'}`}>
                   {day.getDate()}
                 </div>
                 <div className="space-y-1">
@@ -358,7 +358,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                     </div>
                   ))}
                   {dayAppointments.length > 3 && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       +{dayAppointments.length - 3} altri
                     </div>
                   )}
@@ -378,9 +378,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigateDate('prev')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
+            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           
           <button
@@ -392,23 +392,23 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           
           <button
             onClick={() => navigateDate('next')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
+            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
 
         <div className="flex items-center space-x-3">
           {/* View Mode Selector */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
             {(['day', 'week', 'month'] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => onViewModeChange(mode)}
                 className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                   viewMode === mode
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 {mode === 'day' ? 'Giorno' : mode === 'week' ? 'Settimana' : 'Mese'}
@@ -420,7 +420,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
           >
             <option value="all">Tutti gli stati</option>
             <option value="scheduled">Programmati</option>

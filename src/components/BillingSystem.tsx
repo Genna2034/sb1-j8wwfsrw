@@ -13,10 +13,10 @@ export const BillingSystem: React.FC = () => {
   const { user } = useAuth();
   const { showNotification } = useNotifications();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'invoices' | 'payments' | 'expenses' | 'reports'>('dashboard');
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | undefined>(undefined);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [showInvoiceDetail, setShowInvoiceDetail] = useState(false);
-  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | undefined>(undefined);
   const [stats, setStats] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
@@ -47,7 +47,7 @@ export const BillingSystem: React.FC = () => {
   };
 
   const handleCreateInvoice = () => {
-    setEditingInvoice(null);
+    setEditingInvoice(undefined);
     setShowInvoiceForm(true);
   };
 
@@ -62,7 +62,7 @@ export const BillingSystem: React.FC = () => {
       saveInvoice(invoice);
       loadStats();
       setShowInvoiceForm(false);
-      setEditingInvoice(null);
+      setEditingInvoice(undefined);
       
       // Se è una nuova fattura, mostra notifica
       if (!editingInvoice) {
@@ -86,7 +86,7 @@ export const BillingSystem: React.FC = () => {
         deleteInvoice(selectedInvoice.id);
         loadStats();
         setShowInvoiceDetail(false);
-        setSelectedInvoice(null);
+        setSelectedInvoice(undefined);
         
         showNotification(
           'Fattura eliminata',
@@ -114,7 +114,7 @@ export const BillingSystem: React.FC = () => {
             id: generatePaymentId(),
             invoiceId: selectedInvoice.id,
             amount: selectedInvoice.remainingAmount,
-            method: 'bank_transfer',
+            method: 'bank_transfer' as const,
             date: new Date().toISOString().split('T')[0],
             reference: `Pagamento fattura ${selectedInvoice.number}`,
             createdAt: new Date().toISOString(),
@@ -175,8 +175,8 @@ export const BillingSystem: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sistema Fatturazione e Contabilità</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sistema Fatturazione e Contabilità</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Gestione completa di fatture, pagamenti e analisi finanziarie
           </p>
         </div>
@@ -201,72 +201,72 @@ export const BillingSystem: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Euro className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <Euro className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Ricavi Mese</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Ricavi Mese</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {formatCurrency(stats.revenue?.total || 0)}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <FileText className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Fatture Totali</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.totalInvoices || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Fatture Totali</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.totalInvoices || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-yellow-100 rounded-lg">
-              <Calculator className="w-6 h-6 text-yellow-600" />
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+              <Calculator className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Bozze</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.draftInvoices || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Bozze</p>
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.draftInvoices || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-red-600" />
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Scadute</p>
-              <p className="text-2xl font-bold text-red-600">{stats.overdueInvoices || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Scadute</p>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.overdueInvoices || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-emerald-100 rounded-lg">
-              <CreditCard className="w-6 h-6 text-emerald-600" />
+            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+              <CreditCard className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pagate</p>
-              <p className="text-2xl font-bold text-emerald-600">{stats.paidInvoices || 0}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pagate</p>
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.paidInvoices || 0}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex space-x-8 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -276,8 +276,8 @@ export const BillingSystem: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.id
-                      ? 'border-sky-600 text-sky-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -301,24 +301,24 @@ export const BillingSystem: React.FC = () => {
           )}
           
           {activeTab === 'payments' && (
-            <div className="text-center py-8 text-gray-500">
-              <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
               <p>Gestione Pagamenti</p>
               <p className="text-sm">Funzionalità in sviluppo</p>
             </div>
           )}
           
           {activeTab === 'expenses' && (
-            <div className="text-center py-8 text-gray-500">
-              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
               <p>Gestione Spese</p>
               <p className="text-sm">Funzionalità in sviluppo</p>
             </div>
           )}
           
           {activeTab === 'reports' && (
-            <div className="text-center py-8 text-gray-500">
-              <PieChart className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <PieChart className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
               <p>Report Finanziari</p>
               <p className="text-sm">Funzionalità in sviluppo</p>
             </div>
@@ -333,7 +333,7 @@ export const BillingSystem: React.FC = () => {
           onSave={handleSaveInvoice}
           onClose={() => {
             setShowInvoiceForm(false);
-            setEditingInvoice(null);
+            setEditingInvoice(undefined);
           }}
         />
       )}
@@ -349,7 +349,7 @@ export const BillingSystem: React.FC = () => {
           onDelete={handleDeleteInvoice}
           onClose={() => {
             setShowInvoiceDetail(false);
-            setSelectedInvoice(null);
+            setSelectedInvoice(undefined);
           }}
           onStatusChange={handleStatusChange}
         />

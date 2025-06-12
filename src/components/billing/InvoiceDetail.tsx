@@ -28,13 +28,13 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'sent': return 'bg-blue-100 text-blue-800';
-      case 'paid': return 'bg-green-100 text-green-800';
-      case 'overdue': return 'bg-red-100 text-red-800';
-      case 'cancelled': return 'bg-gray-100 text-gray-800';
-      case 'refunded': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'draft': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      case 'sent': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'paid': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'overdue': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      case 'cancelled': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      case 'refunded': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
@@ -85,7 +85,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           id: generatePaymentId(),
           invoiceId: invoice.id,
           amount: invoice.remainingAmount,
-          method: 'bank_transfer',
+          method: 'bank_transfer' as const,
           date: new Date().toISOString().split('T')[0],
           reference: `Pagamento fattura ${invoice.number}`,
           createdAt: new Date().toISOString(),
@@ -101,7 +101,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           paidAmount: invoice.total,
           remainingAmount: 0,
           paymentDate: new Date().toISOString().split('T')[0],
-          paymentMethod: 'bank_transfer'
+          paymentMethod: 'bank_transfer' as const
         };
         
         saveInvoice(updatedInvoice);
@@ -179,12 +179,12 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                 {getTypeDisplayName(invoice.type)} {invoice.number}
               </h3>
               <div className="flex items-center space-x-3 mt-1">
@@ -192,11 +192,11 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
                   {getStatusDisplayName(invoice.status)}
                 </span>
                 {invoice.isElectronic && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                     Elettronica
                   </span>
                 )}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   Emessa: {new Date(invoice.issueDate).toLocaleDateString('it-IT')}
                 </span>
               </div>
@@ -205,7 +205,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
               {invoice.status === 'draft' && (
                 <button
                   onClick={onEdit}
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                   title="Modifica"
                 >
                   <Edit className="w-5 h-5" />
@@ -213,7 +213,7 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
               )}
               <button
                 onClick={onClose}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -225,39 +225,39 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           {/* Client and Invoice Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900 flex items-center">
-                <User className="w-5 h-5 mr-2 text-blue-600" />
+              <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
+                <User className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                 Cliente
               </h4>
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h5 className="font-medium text-blue-900">{invoice.patientName}</h5>
-                <p className="text-sm text-blue-800 mt-1">{invoice.patientFiscalCode}</p>
-                <p className="text-sm text-blue-800 mt-1">{invoice.patientAddress}</p>
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
+                <h5 className="font-medium text-blue-900 dark:text-blue-300">{invoice.patientName}</h5>
+                <p className="text-sm text-blue-800 dark:text-blue-400 mt-1">{invoice.patientFiscalCode}</p>
+                <p className="text-sm text-blue-800 dark:text-blue-400 mt-1">{invoice.patientAddress}</p>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900 flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-green-600" />
+              <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                 Dettagli Fattura
               </h4>
               <div className="space-y-2">
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Numero:</span>
-                  <span className="font-medium">{invoice.number}</span>
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-gray-600 dark:text-gray-400">Numero:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{invoice.number}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Data Emissione:</span>
-                  <span className="font-medium">{new Date(invoice.issueDate).toLocaleDateString('it-IT')}</span>
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-gray-600 dark:text-gray-400">Data Emissione:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{new Date(invoice.issueDate).toLocaleDateString('it-IT')}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Data Scadenza:</span>
-                  <span className="font-medium">{new Date(invoice.dueDate).toLocaleDateString('it-IT')}</span>
+                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-gray-600 dark:text-gray-400">Data Scadenza:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{new Date(invoice.dueDate).toLocaleDateString('it-IT')}</span>
                 </div>
                 {invoice.paymentMethod && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Metodo Pagamento:</span>
-                    <span className="font-medium">{getPaymentMethodName(invoice.paymentMethod)}</span>
+                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                    <span className="text-gray-600 dark:text-gray-400">Metodo Pagamento:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{getPaymentMethodName(invoice.paymentMethod)}</span>
                   </div>
                 )}
               </div>
@@ -266,57 +266,57 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
 
           {/* Invoice Items */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-gray-900 flex items-center">
-              <FileText className="w-5 h-5 mr-2 text-purple-600" />
+            <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
+              <FileText className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
               Elementi Fattura
             </h4>
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Descrizione
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Quantità
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Prezzo Unitario
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Sconto
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Totale
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {invoice.items.map((item) => (
                     <tr key={item.id}>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{item.description}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{item.description}</div>
                         {item.date && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
                             {new Date(item.date).toLocaleDateString('it-IT')}
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-gray-900 dark:text-white">
                         {item.quantity}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white">
                         {formatCurrency(item.unitPrice)}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white">
                         {item.discount > 0 ? (
                           item.discountType === 'percentage' ? 
                             `${item.discount}%` : 
                             formatCurrency(item.discount)
                         ) : '-'}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-medium">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-medium text-gray-900 dark:text-white">
                         {formatCurrency(item.total)}
                       </td>
                     </tr>
@@ -327,30 +327,30 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
           </div>
 
           {/* Totals */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-100 dark:border-gray-600">
             <div className="flex justify-end space-y-2">
               <div className="w-64">
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600">Subtotale:</span>
-                  <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Subtotale:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(invoice.subtotal)}</span>
                 </div>
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600">IVA ({invoice.taxRate}%):</span>
-                  <span className="font-medium">{formatCurrency(invoice.taxAmount)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">IVA ({invoice.taxRate}%):</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(invoice.taxAmount)}</span>
                 </div>
-                <div className="flex justify-between py-2 border-t border-gray-300">
-                  <span className="font-semibold">Totale:</span>
-                  <span className="font-bold text-lg">{formatCurrency(invoice.total)}</span>
+                <div className="flex justify-between py-2 border-t border-gray-300 dark:border-gray-500">
+                  <span className="font-semibold text-gray-900 dark:text-white">Totale:</span>
+                  <span className="font-bold text-lg text-gray-900 dark:text-white">{formatCurrency(invoice.total)}</span>
                 </div>
                 {invoice.paidAmount > 0 && (
                   <>
                     <div className="flex justify-between py-2">
-                      <span className="text-gray-600">Pagato:</span>
-                      <span className="font-medium text-green-600">{formatCurrency(invoice.paidAmount)}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Pagato:</span>
+                      <span className="font-medium text-green-600 dark:text-green-400">{formatCurrency(invoice.paidAmount)}</span>
                     </div>
                     <div className="flex justify-between py-2">
-                      <span className="text-gray-600">Da pagare:</span>
-                      <span className="font-medium text-red-600">{formatCurrency(invoice.remainingAmount)}</span>
+                      <span className="text-gray-600 dark:text-gray-400">Da pagare:</span>
+                      <span className="font-medium text-red-600 dark:text-red-400">{formatCurrency(invoice.remainingAmount)}</span>
                     </div>
                   </>
                 )}
@@ -360,14 +360,14 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
 
           {/* Notes */}
           {invoice.notes && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h5 className="font-medium text-gray-900 mb-2">Note:</h5>
-              <p className="text-gray-700">{invoice.notes}</p>
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-100 dark:border-gray-600">
+              <h5 className="font-medium text-gray-900 dark:text-white mb-2">Note:</h5>
+              <p className="text-gray-700 dark:text-gray-300">{invoice.notes}</p>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={handleDownloadPdf}
               disabled={isGeneratingPdf}
@@ -450,4 +450,16 @@ export const InvoiceDetail: React.FC<InvoiceDetailProps> = ({
       </div>
     </div>
   );
+};
+
+// Helper function to get payment method name
+const getPaymentMethodName = (method: string): string => {
+  switch (method) {
+    case 'cash': return 'Contanti';
+    case 'card': return 'Carta';
+    case 'bank_transfer': return 'Bonifico Bancario';
+    case 'check': return 'Assegno';
+    case 'insurance': return 'Assicurazione';
+    default: return method;
+  }
 };
