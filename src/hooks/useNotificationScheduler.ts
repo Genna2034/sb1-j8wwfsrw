@@ -54,75 +54,107 @@ export function useNotificationScheduler() {
       let overdueInvoicesArray: any[] = [];
       
       // Promemoria appuntamenti per domani
-      const appointments = getAppointments({ date: tomorrowStr });
-      const staffAppointments = appointments.filter(apt => 
-        apt.staffId === user.id && 
-        (apt.status === 'scheduled' || apt.status === 'confirmed')
-      );
-      
-      for (const appointment of staffAppointments) {
-        await createAppointmentNotification(user.id, appointment, 'reminder');
-        notificationCount++;
+      try {
+        const appointments = getAppointments({ date: tomorrowStr });
+        const staffAppointments = appointments.filter(apt => 
+          apt.staffId === user.id && 
+          (apt.status === 'scheduled' || apt.status === 'confirmed')
+        );
+        
+        for (const appointment of staffAppointments) {
+          try {
+            await createAppointmentNotification(user.id, appointment, 'reminder');
+            notificationCount++;
+          } catch (error) {
+            console.error('Errore nella creazione notifica appuntamento:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Errore nel recupero appuntamenti:', error);
       }
       
       // Promemoria fatture in scadenza
       if (user.role === 'admin' || user.role === 'coordinator') {
-        const invoices = getInvoices();
-        dueInvoicesArray = invoices.filter(inv => {
-          const dueDate = new Date(inv.dueDate);
-          const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-          return diffDays <= 5 && diffDays > 0 && inv.status !== 'paid' && inv.status !== 'cancelled';
-        });
-        
-        for (const invoice of dueInvoicesArray) {
-          await createInvoiceNotification(user.id, invoice, 'reminder');
-          notificationCount++;
-        }
-        
-        // Fatture scadute oggi
-        overdueInvoicesArray = invoices.filter(inv => 
-          inv.dueDate === todayStr && 
-          inv.status !== 'paid' && 
-          inv.status !== 'cancelled'
-        );
-        
-        for (const invoice of overdueInvoicesArray) {
-          await createInvoiceNotification(user.id, invoice, 'overdue');
-          notificationCount++;
+        try {
+          const invoices = getInvoices();
+          dueInvoicesArray = invoices.filter(inv => {
+            const dueDate = new Date(inv.dueDate);
+            const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            return diffDays <= 5 && diffDays > 0 && inv.status !== 'paid' && inv.status !== 'cancelled';
+          });
+          
+          for (const invoice of dueInvoicesArray) {
+            try {
+              await createInvoiceNotification(user.id, invoice, 'reminder');
+              notificationCount++;
+            } catch (error) {
+              console.error('Errore nella creazione notifica fattura:', error);
+            }
+          }
+          
+          // Fatture scadute oggi
+          overdueInvoicesArray = invoices.filter(inv => 
+            inv.dueDate === todayStr && 
+            inv.status !== 'paid' && 
+            inv.status !== 'cancelled'
+          );
+          
+          for (const invoice of overdueInvoicesArray) {
+            try {
+              await createInvoiceNotification(user.id, invoice, 'overdue');
+              notificationCount++;
+            } catch (error) {
+              console.error('Errore nella creazione notifica fattura scaduta:', error);
+            }
+          }
+        } catch (error) {
+          console.error('Errore nel recupero fatture:', error);
         }
       }
       
       // Promemoria task in scadenza
-      const tasks = getTasks({ assignedTo: user.id });
-      const dueTasks = tasks.filter(task => {
-        const dueDate = new Date(task.dueDate);
-        const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        return diffDays === 1 && task.status !== 'completed' && task.status !== 'cancelled';
-      });
-      
-      for (const task of dueTasks) {
-        await createTaskNotification(user.id, task, 'reminder');
-        notificationCount++;
-      }
-      
-      // Task scaduti oggi
-      const overdueTasks = tasks.filter(task => 
-        task.dueDate === todayStr && 
-        task.status !== 'completed' && 
-        task.status !== 'cancelled'
-      );
-      
-      for (const task of overdueTasks) {
-        await createTaskNotification(user.id, task, 'overdue');
-        notificationCount++;
+      try {
+        const tasks = getTasks({ assignedTo: user.id });
+        const dueTasks = tasks.filter(task => {
+          const dueDate = new Date(task.dueDate);
+          const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          return diffDays === 1 && task.status !== 'completed' && task.status !== 'cancelled';
+        });
+        
+        for (const task of dueTasks) {
+          try {
+            await createTaskNotification(user.id, task, 'reminder');
+            notificationCount++;
+          } catch (error) {
+            console.error('Errore nella creazione notifica task:', error);
+          }
+        }
+        
+        // Task scaduti oggi
+        const overdueTasks = tasks.filter(task => 
+          task.dueDate === todayStr && 
+          task.status !== 'completed' && 
+          task.status !== 'cancelled'
+        );
+        
+        for (const task of overdueTasks) {
+          try {
+            await createTaskNotification(user.id, task, 'overdue');
+            notificationCount++;
+          } catch (error) {
+            console.error('Errore nella creazione notifica task scaduto:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Errore nel recupero task:', error);
       }
       
       // Aggiorna statistiche
       setStats({
-        appointmentReminders: staffAppointments.length,
+        appointmentReminders: staffAppointments?.length || 0,
         invoiceReminders: (user.role === 'admin' || user.role === 'coordinator') ? 
-          dueInvoicesArray.length + overdueInvoicesArray.length : 0,
-        taskReminders: dueTasks.length + overdueTasks.length,
+          (dueInvoicesArray?.length || 0) + (overdueInvoicesArray?.length || 0) : 0,
+        taskReminders: (dueTasks?.length || 0) + (overdueTasks?.length || 0),
         total: notificationCount
       });
       

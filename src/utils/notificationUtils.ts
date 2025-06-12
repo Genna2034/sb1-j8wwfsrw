@@ -40,20 +40,37 @@ export const createNotification = async (
     ...options
   };
   
-  await notificationService.saveNotification(notification);
-  
-  // Mostra notifica browser se abilitata
-  await notificationService.showNotification(title, {
-    body: message,
-    tag: notification.id,
-    data: {
-      url: options?.action_url || '/',
-      notificationId: notification.id,
-      type
+  try {
+    // Salva la notifica
+    const success = await notificationService.saveNotification(notification);
+    
+    if (!success) {
+      console.warn('Impossibile salvare la notifica nel database, ma continuo con la visualizzazione');
     }
-  });
-  
-  return notification;
+    
+    // Mostra notifica browser se abilitata
+    await notificationService.showNotification(title, {
+      body: message,
+      tag: notification.id,
+      data: {
+        url: options?.action_url || '/',
+        notificationId: notification.id,
+        type
+      }
+    });
+    
+    return notification;
+  } catch (error) {
+    console.error('Errore durante la creazione della notifica:', error);
+    
+    // Fallback: mostra comunque la notifica anche se non è stato possibile salvarla
+    await notificationService.showNotification(title, {
+      body: message,
+      tag: notification.id,
+    });
+    
+    return notification;
+  }
 };
 
 // Crea notifica per appuntamento

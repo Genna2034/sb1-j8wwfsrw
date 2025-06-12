@@ -34,18 +34,38 @@ const LoadingComponent = () => (
 function App() {
   const { isAuthenticated, isLoading, user, isInitialized } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isDebugMode, setIsDebugMode] = useState(false);
+  const [isVercelDeployment, setIsVercelDeployment] = useState(false);
 
-  // Debug mode for troubleshooting deployment issues
+  // Check if running on Vercel
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('debug')) {
-      setIsDebugMode(true);
-      console.log('🔍 Debug mode enabled');
-      console.log('Auth state:', { isAuthenticated, isLoading, isInitialized });
-      console.log('User:', user);
+    const isVercel = window.location.hostname.includes('vercel.app');
+    setIsVercelDeployment(isVercel);
+    
+    // Log environment info for debugging
+    console.log('Environment info:', {
+      hostname: window.location.hostname,
+      isVercel,
+      protocol: window.location.protocol,
+      userAgent: navigator.userAgent
+    });
+    
+    // Force localStorage check on Vercel
+    if (isVercel) {
+      try {
+        const testKey = 'vercel_test';
+        localStorage.setItem(testKey, 'test');
+        const testValue = localStorage.getItem(testKey);
+        localStorage.removeItem(testKey);
+        
+        console.log('LocalStorage test on Vercel:', {
+          success: testValue === 'test',
+          value: testValue
+        });
+      } catch (error) {
+        console.error('LocalStorage test failed on Vercel:', error);
+      }
     }
-  }, [isAuthenticated, isLoading, user, isInitialized]);
+  }, []);
 
   // Show loading spinner during initialization
   if (isLoading || !isInitialized) {
@@ -64,73 +84,18 @@ function App() {
     );
   }
 
-  // Debug panel for troubleshooting
-  if (isDebugMode) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
-        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Debug Mode</h1>
-          
-          <div className="space-y-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">Authentication State</h2>
-              <pre className="bg-white dark:bg-gray-900 p-4 rounded overflow-auto text-sm">
-                {JSON.stringify({ isAuthenticated, isLoading, isInitialized }, null, 2)}
-              </pre>
-            </div>
-            
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <h2 className="text-lg font-semibold text-green-900 dark:text-green-300 mb-2">User Data</h2>
-              <pre className="bg-white dark:bg-gray-900 p-4 rounded overflow-auto text-sm">
-                {JSON.stringify(user, null, 2)}
-              </pre>
-            </div>
-            
-            <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-              <h2 className="text-lg font-semibold text-purple-900 dark:text-purple-300 mb-2">Available Tabs</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                <button onClick={() => setActiveTab('dashboard')} className="p-2 bg-white dark:bg-gray-700 rounded border">Dashboard</button>
-                <button onClick={() => setActiveTab('timetracker')} className="p-2 bg-white dark:bg-gray-700 rounded border">Time Tracker</button>
-                <button onClick={() => setActiveTab('staff')} className="p-2 bg-white dark:bg-gray-700 rounded border">Staff</button>
-                <button onClick={() => setActiveTab('medical')} className="p-2 bg-white dark:bg-gray-700 rounded border">Medical Records</button>
-                <button onClick={() => setActiveTab('assignments')} className="p-2 bg-white dark:bg-gray-700 rounded border">Staff Assignment</button>
-                <button onClick={() => setActiveTab('billing')} className="p-2 bg-white dark:bg-gray-700 rounded border">Billing</button>
-                <button onClick={() => setActiveTab('advanced-billing')} className="p-2 bg-white dark:bg-gray-700 rounded border">Advanced Billing</button>
-                <button onClick={() => setActiveTab('communications')} className="p-2 bg-white dark:bg-gray-700 rounded border">Communications</button>
-                <button onClick={() => setActiveTab('calendar')} className="p-2 bg-white dark:bg-gray-700 rounded border">Calendar</button>
-                <button onClick={() => setActiveTab('appointments')} className="p-2 bg-white dark:bg-gray-700 rounded border">Appointments</button>
-                <button onClick={() => setActiveTab('reports')} className="p-2 bg-white dark:bg-gray-700 rounded border">Reports</button>
-                <button onClick={() => setActiveTab('management')} className="p-2 bg-white dark:bg-gray-700 rounded border">Management</button>
-              </div>
-            </div>
-            
-            <div className="flex justify-between">
-              <button 
-                onClick={() => window.location.href = window.location.pathname} 
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg"
-              >
-                Exit Debug Mode
-              </button>
-              
-              <button 
-                onClick={() => {
-                  localStorage.clear();
-                  window.location.reload();
-                }} 
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
-              >
-                Clear Storage & Reload
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Se non autenticato, mostra il form di login
   if (!isAuthenticated) {
     return <LoginForm />;
+  }
+
+  // Debug info for Vercel deployment
+  if (isVercelDeployment) {
+    console.log('User info on Vercel:', {
+      name: user?.name,
+      role: user?.role,
+      id: user?.id
+    });
   }
 
   const renderContent = () => {

@@ -235,16 +235,21 @@ class NotificationService {
 
   async saveNotification(notification: AppNotification): Promise<boolean> {
     try {
-      // Salva in Supabase se configurato
-      if (shouldUseSupabase()) {
-        const supabase = getSupabaseService();
-        await supabase.insert('notifications', notification);
-      }
-
       // Salva in localStorage per compatibilità
       const notifications = this.getNotificationsFromStorage();
       notifications.push(notification);
       localStorage.setItem('emmanuel_notifications', JSON.stringify(notifications));
+      
+      // Salva in Supabase se configurato
+      if (shouldUseSupabase()) {
+        try {
+          const supabase = getSupabaseService();
+          await supabase.insert('notifications', notification);
+        } catch (error) {
+          console.error('Errore nel salvataggio notifica su Supabase:', error);
+          // Continue anyway since we saved to localStorage
+        }
+      }
 
       return true;
     } catch (error) {
@@ -257,12 +262,17 @@ class NotificationService {
     try {
       // Carica da Supabase se configurato
       if (shouldUseSupabase()) {
-        const supabase = getSupabaseService();
-        return await supabase.getAll('notifications', {
-          filters: { user_id: userId },
-          orderBy: 'created_at',
-          ascending: false
-        });
+        try {
+          const supabase = getSupabaseService();
+          return await supabase.getAll('notifications', {
+            filters: { user_id: userId },
+            orderBy: 'created_at',
+            ascending: false
+          });
+        } catch (error) {
+          console.error('Errore nel caricamento notifiche da Supabase:', error);
+          // Fall back to localStorage
+        }
       }
 
       // Carica da localStorage
@@ -276,15 +286,6 @@ class NotificationService {
 
   async markAsRead(notificationId: string): Promise<boolean> {
     try {
-      // Aggiorna in Supabase se configurato
-      if (shouldUseSupabase()) {
-        const supabase = getSupabaseService();
-        await supabase.update('notifications', notificationId, {
-          is_read: true,
-          read_at: new Date().toISOString()
-        });
-      }
-
       // Aggiorna in localStorage
       const notifications = this.getNotificationsFromStorage();
       const notification = notifications.find(n => n.id === notificationId);
@@ -292,6 +293,20 @@ class NotificationService {
         notification.is_read = true;
         notification.read_at = new Date().toISOString();
         localStorage.setItem('emmanuel_notifications', JSON.stringify(notifications));
+      }
+      
+      // Aggiorna in Supabase se configurato
+      if (shouldUseSupabase()) {
+        try {
+          const supabase = getSupabaseService();
+          await supabase.update('notifications', notificationId, {
+            is_read: true,
+            read_at: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error('Errore nell\'aggiornamento notifica su Supabase:', error);
+          // Continue anyway since we updated localStorage
+        }
       }
 
       return true;
@@ -303,26 +318,6 @@ class NotificationService {
 
   async markAllAsRead(userId: string): Promise<boolean> {
     try {
-      // Aggiorna in Supabase se configurato
-      if (shouldUseSupabase()) {
-        const supabase = getSupabaseService();
-        const { data: notifications } = await supabase.supabase
-          .from('notifications')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('is_read', false);
-
-        if (notifications && notifications.length > 0) {
-          await supabase.supabase
-            .from('notifications')
-            .update({
-              is_read: true,
-              read_at: new Date().toISOString()
-            })
-            .in('id', notifications.map(n => n.id));
-        }
-      }
-
       // Aggiorna in localStorage
       const notifications = this.getNotificationsFromStorage();
       notifications.forEach(n => {
@@ -332,6 +327,31 @@ class NotificationService {
         }
       });
       localStorage.setItem('emmanuel_notifications', JSON.stringify(notifications));
+      
+      // Aggiorna in Supabase se configurato
+      if (shouldUseSupabase()) {
+        try {
+          const supabase = getSupabaseService();
+          const { data: unreadNotifications } = await supabase.supabase
+            .from('notifications')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('is_read', false);
+
+          if (unreadNotifications && unreadNotifications.length > 0) {
+            await supabase.supabase
+              .from('notifications')
+              .update({
+                is_read: true,
+                read_at: new Date().toISOString()
+              })
+              .in('id', unreadNotifications.map(n => n.id));
+          }
+        } catch (error) {
+          console.error('Errore nell\'aggiornamento notifiche su Supabase:', error);
+          // Continue anyway since we updated localStorage
+        }
+      }
 
       return true;
     } catch (error) {
@@ -347,41 +367,52 @@ class NotificationService {
   }
 
   private async saveSubscription(userId: string, subscription: PushSubscription): Promise<void> {
-    // Salva in Supabase se configurato
-    if (shouldUseSupabase()) {
-      const supabase = getSupabaseService();
-      await supabase.supabase
-        .from('push_subscriptions')
-        .upsert({
-          user_id: userId,
-          endpoint: subscription.endpoint,
-          expiration_time: subscription.expirationTime,
-          p256dh: subscription.keys.p256dh,
-          auth: subscription.keys.auth,
-          created_at: new Date().toISOString()
-        });
-    }
-
     // Salva in localStorage per compatibilità
     const subscriptions = JSON.parse(localStorage.getItem('emmanuel_push_subscriptions') || '{}');
     subscriptions[userId] = subscription;
     localStorage.setItem('emmanuel_push_subscriptions', JSON.stringify(subscriptions));
+    
+    // Salva in Supabase se configurato
+    if (shouldUseSupabase()) {
+      try {
+        const supabase = getSupabaseService();
+        await supabase.supabase
+          .from('push_subscriptions')
+          .upsert({
+            user_id: userId,
+            endpoint: subscription.endpoint,
+            expiration_time: subscription.expirationTime,
+            p256dh: subscription.keys.p256dh,
+            auth: subscription.keys.auth,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+      } catch (error) {
+        console.error('Errore nel salvataggio sottoscrizione push su Supabase:', error);
+        // Continue anyway since we saved to localStorage
+      }
+    }
   }
 
   private async deleteSubscription(userId: string): Promise<void> {
-    // Elimina da Supabase se configurato
-    if (shouldUseSupabase()) {
-      const supabase = getSupabaseService();
-      await supabase.supabase
-        .from('push_subscriptions')
-        .delete()
-        .eq('user_id', userId);
-    }
-
     // Elimina da localStorage
     const subscriptions = JSON.parse(localStorage.getItem('emmanuel_push_subscriptions') || '{}');
     delete subscriptions[userId];
     localStorage.setItem('emmanuel_push_subscriptions', JSON.stringify(subscriptions));
+    
+    // Elimina da Supabase se configurato
+    if (shouldUseSupabase()) {
+      try {
+        const supabase = getSupabaseService();
+        await supabase.supabase
+          .from('push_subscriptions')
+          .delete()
+          .eq('user_id', userId);
+      } catch (error) {
+        console.error('Errore nell\'eliminazione sottoscrizione push da Supabase:', error);
+        // Continue anyway since we deleted from localStorage
+      }
+    }
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {

@@ -50,6 +50,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Piccolo delay per assicurarsi che localStorage sia accessibile
         await new Promise(resolve => setTimeout(resolve, 100));
         
+        // Check if running on Vercel
+        const isVercel = window.location.hostname.includes('vercel.app');
+        if (isVercel) {
+          console.log('🌐 Running on Vercel deployment');
+        }
+        
         if (isValidSession()) {
           const user = getCurrentUser();
           const token = localStorage.getItem('emmanuel_token');
@@ -105,43 +111,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
-    
-    // Listen for storage events from other tabs
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'emmanuel_user' || event.key === 'emmanuel_token') {
-        console.log('🔄 Storage change detected, refreshing auth state');
-        if (isValidSession()) {
-          const user = getCurrentUser();
-          const token = localStorage.getItem('emmanuel_token');
-          
-          if (user && token) {
-            setAuthState({
-              user,
-              isAuthenticated: true,
-              token
-            });
-          } else {
-            setAuthState({
-              user: null,
-              isAuthenticated: false,
-              token: null
-            });
-          }
-        } else {
-          setAuthState({
-            user: null,
-            isAuthenticated: false,
-            token: null
-          });
-        }
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, []);
 
   const login = (user: User, token: string) => {
@@ -165,6 +134,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     setAuthState(newAuthState);
     console.log('✅ AuthContext: Stato autenticazione aggiornato');
+    
+    // Verifica che l'utente sia stato salvato correttamente
+    const savedUser = localStorage.getItem('emmanuel_user');
+    console.log('🔍 Verifica salvataggio utente:', !!savedUser);
+    
+    // Log additional info for Vercel debugging
+    if (window.location.hostname.includes('vercel.app')) {
+      console.log('🌐 Vercel login info:', {
+        userRole: user.role,
+        userSaved: !!savedUser,
+        tokenSaved: !!localStorage.getItem('emmanuel_token')
+      });
+    }
   };
 
   const logout = () => {

@@ -16,7 +16,32 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = !useMediaQuery(breakpoints.lg);
+  const [isVercelDeployment, setIsVercelDeployment] = useState(false);
   const [isDebugMode, setIsDebugMode] = useState(false);
+
+  // Check if running on Vercel and if debug mode is enabled
+  useEffect(() => {
+    const isVercel = window.location.hostname.includes('vercel.app');
+    setIsVercelDeployment(isVercel);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const debug = urlParams.get('debug') === 'true';
+    setIsDebugMode(debug);
+    
+    if (isVercel) {
+      console.log('🌐 Layout: Running on Vercel deployment');
+      console.log('🌐 User in Layout:', {
+        name: user?.name,
+        role: user?.role,
+        department: user?.department
+      });
+    }
+    
+    if (debug) {
+      console.log('🐛 Debug mode enabled');
+      console.log('🐛 Available tabs:', getTabsForRole().map(t => t.id));
+    }
+  }, [user]);
 
   // Listen for tab change events from dashboard quick actions
   useEffect(() => {
@@ -28,16 +53,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
     window.addEventListener('changeTab', handleTabChange as EventListener);
     return () => window.removeEventListener('changeTab', handleTabChange as EventListener);
   }, [onTabChange]);
-
-  // Check for debug mode
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('debug')) {
-      setIsDebugMode(true);
-      console.log('🔍 Debug mode enabled in Layout');
-      console.log('User:', user);
-    }
-  }, [user]);
 
   const handleLogout = () => {
     if (window.confirm('Sei sicuro di voler uscire?')) {
@@ -56,13 +71,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   };
 
   const getTabsForRole = () => {
-    if (isDebugMode) {
-      console.log('🔍 Generating tabs for role:', user?.role);
-    }
-    
     const baseTabs = [
       { id: 'dashboard', label: 'Dashboard', icon: Home }
     ];
+
+    // Log for debugging on Vercel
+    if (isVercelDeployment) {
+      console.log('🌐 Getting tabs for role:', user?.role);
+    }
 
     switch (user?.role) {
       case 'admin':
@@ -110,10 +126,142 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   };
 
   const tabs = getTabsForRole();
-  
+
+  // Debug info for Vercel
+  if (isVercelDeployment) {
+    console.log('🌐 Available tabs:', tabs.map(t => t.id));
+    console.log('🌐 Active tab:', activeTab);
+  }
+
+  // Debug mode UI
   if (isDebugMode) {
-    console.log('🔍 Available tabs:', tabs.map(t => t.id));
-    console.log('🔍 Active tab:', activeTab);
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Debug Header */}
+        <header className="bg-yellow-500 text-white shadow-sm border-b sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                  <span className="text-yellow-500 font-bold text-sm">E</span>
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold">Emmanuel DEBUG MODE</h1>
+                  <p className="text-xs">Vercel Deployment Troubleshooting</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="px-3 py-1 bg-white text-yellow-600 rounded text-sm font-medium"
+                >
+                  Exit Debug Mode
+                </button>
+                
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-white hover:text-red-200 hover:bg-yellow-600 rounded-lg transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Debug Info */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Debug Information</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white">User Information:</h3>
+                <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded mt-2 text-sm overflow-auto">
+                  {JSON.stringify(user, null, 2)}
+                </pre>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white">Available Tabs:</h3>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => onTabChange(tab.id)}
+                      className={`px-3 py-2 rounded text-sm ${
+                        activeTab === tab.id
+                          ? 'bg-sky-600 text-white'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white">Environment:</h3>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
+                    <span className="font-medium">Hostname:</span> {window.location.hostname}
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
+                    <span className="font-medium">Is Vercel:</span> {isVercelDeployment ? 'Yes' : 'No'}
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
+                    <span className="font-medium">Protocol:</span> {window.location.protocol}
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
+                    <span className="font-medium">Path:</span> {window.location.pathname}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white">LocalStorage Test:</h3>
+                <div className="flex items-center space-x-4 mt-2">
+                  <button
+                    onClick={() => {
+                      try {
+                        const testKey = 'debug_test';
+                        localStorage.setItem(testKey, 'test_value');
+                        const retrieved = localStorage.getItem(testKey);
+                        localStorage.removeItem(testKey);
+                        alert(`LocalStorage test: ${retrieved === 'test_value' ? 'SUCCESS' : 'FAILED'}`);
+                      } catch (error) {
+                        alert(`LocalStorage error: ${error.message}`);
+                      }
+                    }}
+                    className="px-3 py-2 bg-green-600 text-white rounded text-sm"
+                  >
+                    Test LocalStorage
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      window.location.href = '/debug-vercel.html';
+                    }}
+                    className="px-3 py-2 bg-blue-600 text-white rounded text-sm"
+                  >
+                    Open Debug Tools
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Main Content */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Content: {activeTab}</h2>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -149,13 +297,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               
               {/* Notifications */}
               <NotificationBadge onClick={() => setShowNotifications(true)} />
-
-              {/* Debug Mode Indicator */}
-              {isDebugMode && (
-                <div className="bg-yellow-500 text-white text-xs px-2 py-1 rounded">
-                  DEBUG
-                </div>
-              )}
 
               {/* User Menu */}
               <div className="flex items-center space-x-2">

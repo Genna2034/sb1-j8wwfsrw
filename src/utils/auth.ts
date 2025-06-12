@@ -57,8 +57,11 @@ export const saveUserSession = (user: User, token: string): void => {
       tokenSaved: !!savedToken 
     });
     
-    // Forza un evento di storage per aggiornare altre schede
-    window.dispatchEvent(new Event('storage'));
+    // Verifica che il ruolo sia stato salvato correttamente
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      console.log('🔍 Ruolo salvato:', parsedUser.role);
+    }
   } catch (error) {
     console.error('💥 Errore nel salvataggio sessione:', error);
     throw error;
@@ -72,9 +75,6 @@ export const clearUserSession = (): void => {
     localStorage.removeItem('emmanuel_token');
     localStorage.removeItem('emmanuel_session_timestamp');
     console.log('✅ Sessione cancellata');
-    
-    // Forza un evento di storage per aggiornare altre schede
-    window.dispatchEvent(new Event('storage'));
   } catch (error) {
     console.error('💥 Errore nella cancellazione sessione:', error);
   }
@@ -115,6 +115,14 @@ export const isValidSession = (): boolean => {
       isValid,
       hoursOld: hoursDiff.toFixed(1)
     });
+    
+    // Verifica che il ruolo sia presente
+    if (user && !user.role) {
+      console.log('❌ Ruolo utente mancante, sessione non valida');
+      clearUserSession();
+      return false;
+    }
+    
     return isValid;
   } catch (error) {
     console.error('💥 Errore nel controllo sessione:', error);
