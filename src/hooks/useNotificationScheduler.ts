@@ -49,14 +49,17 @@ export function useNotificationScheduler() {
       
       let notificationCount = 0;
       
-      // Initialize arrays for invoice tracking
+      // Initialize arrays with default values
+      let staffAppointments: any[] = [];
       let dueInvoicesArray: any[] = [];
       let overdueInvoicesArray: any[] = [];
+      let dueTasks: any[] = [];
+      let overdueTasks: any[] = [];
       
       // Promemoria appuntamenti per domani
       try {
         const appointments = getAppointments({ date: tomorrowStr });
-        const staffAppointments = appointments.filter(apt => 
+        staffAppointments = appointments.filter(apt => 
           apt.staffId === user.id && 
           (apt.status === 'scheduled' || apt.status === 'confirmed')
         );
@@ -115,7 +118,7 @@ export function useNotificationScheduler() {
       // Promemoria task in scadenza
       try {
         const tasks = getTasks({ assignedTo: user.id });
-        const dueTasks = tasks.filter(task => {
+        dueTasks = tasks.filter(task => {
           const dueDate = new Date(task.dueDate);
           const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
           return diffDays === 1 && task.status !== 'completed' && task.status !== 'cancelled';
@@ -131,7 +134,7 @@ export function useNotificationScheduler() {
         }
         
         // Task scaduti oggi
-        const overdueTasks = tasks.filter(task => 
+        overdueTasks = tasks.filter(task => 
           task.dueDate === todayStr && 
           task.status !== 'completed' && 
           task.status !== 'cancelled'
@@ -151,10 +154,10 @@ export function useNotificationScheduler() {
       
       // Aggiorna statistiche
       setStats({
-        appointmentReminders: staffAppointments?.length || 0,
+        appointmentReminders: staffAppointments.length,
         invoiceReminders: (user.role === 'admin' || user.role === 'coordinator') ? 
-          (dueInvoicesArray?.length || 0) + (overdueInvoicesArray?.length || 0) : 0,
-        taskReminders: (dueTasks?.length || 0) + (overdueTasks?.length || 0),
+          dueInvoicesArray.length + overdueInvoicesArray.length : 0,
+        taskReminders: dueTasks.length + overdueTasks.length,
         total: notificationCount
       });
       
