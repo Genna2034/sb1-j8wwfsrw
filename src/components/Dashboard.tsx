@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Clock, Users, Calendar, TrendingUp, CheckCircle, AlertCircle, Play, Square, Settings, UserPlus, BookOpen, Shield, Bell, FileText, Heart } from 'lucide-react';
+import { Clock, Users, Calendar, TrendingUp, CheckCircle, AlertCircle, Play, Square, Settings, UserPlus, BookOpen, Shield, Bell, FileText, Heart, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTimeTracker } from '../hooks/useTimeTracker';
 import { useNotifications } from '../contexts/NotificationContext';
