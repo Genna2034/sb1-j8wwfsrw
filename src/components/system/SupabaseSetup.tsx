@@ -156,7 +156,7 @@ export const SupabaseSetup: React.FC = () => {
                   placeholder="https://xxxxxxxxxxxx.supabase.co"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Puoi trovare l'URL del tuo progetto Supabase nella sezione Project Settings > API
+                  Puoi trovare l'URL del tuo progetto Supabase nella sezione Project Settings &gt; API
                 </p>
               </div>
               
