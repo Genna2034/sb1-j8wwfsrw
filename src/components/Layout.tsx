@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart, CalendarDays, Euro, MessageSquare } from 'lucide-react';
+import { User, LogOut, Clock, Users, Calendar, FileText, Home, Bell, Settings, UserPlus, BookOpen, Heart, CalendarDays, Euro, MessageSquare, Building } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { NotificationBadge, NotificationPanel } from './communications/NotificationPanel';
 import { ThemeToggle } from './ui/ThemeToggle';
@@ -57,6 +57,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'staff', label: 'Team', icon: Users },
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
           { id: 'assignments', label: 'Assegna Utenti', icon: UserPlus },
+          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
+          { id: 'advanced-billing', label: 'Fatturazione Avanzata', icon: Building },
           { id: 'billing', label: 'Fatturazione', icon: Euro },
           { id: 'communications', label: 'Comunicazioni', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
@@ -70,6 +72,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'staff', label: 'Equipe', icon: Users },
           { id: 'medical', label: 'Cartelle Cliniche', icon: Heart },
           { id: 'assignments', label: 'Assegna Utenti', icon: UserPlus },
+          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
+          { id: 'advanced-billing', label: 'Fatturazione Avanzata', icon: Building },
           { id: 'billing', label: 'Fatturazione', icon: Euro },
           { id: 'communications', label: 'Comunicazioni', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen },
@@ -81,6 +85,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           { id: 'timetracker', label: 'Timbratura', icon: Clock },
           { id: 'medical', label: 'Pazienti', icon: Heart },
           { id: 'assignments', label: 'Mie Assegnazioni', icon: UserPlus },
+          { id: 'appointments', label: 'Appuntamenti', icon: CalendarDays },
           { id: 'communications', label: 'Messaggi', icon: MessageSquare },
           { id: 'calendar', label: 'Diario Sanitario', icon: BookOpen }
         ];

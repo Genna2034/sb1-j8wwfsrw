@@ -14,7 +14,9 @@ const Management = lazy(() => import('./components/Management').then(module => (
 const MedicalRecords = lazy(() => import('./components/MedicalRecords').then(module => ({ default: module.MedicalRecords })));
 const StaffAssignment = lazy(() => import('./components/StaffAssignment').then(module => ({ default: module.StaffAssignment })));
 const BillingSystem = lazy(() => import('./components/BillingSystem').then(module => ({ default: module.BillingSystem })));
+const AdvancedBillingSystem = lazy(() => import('./components/billing/AdvancedBillingSystem').then(module => ({ default: module.default })));
 const CommunicationSystem = lazy(() => import('./components/CommunicationSystem').then(module => ({ default: module.CommunicationSystem })));
+const AppointmentSystem = lazy(() => import('./components/AppointmentSystem').then(module => ({ default: module.AppointmentSystem })));
 
 // Loading component for suspense fallback
 const LoadingComponent = () => (
@@ -65,8 +67,10 @@ function App() {
           {activeTab === 'medical' && <MedicalRecords />}
           {activeTab === 'assignments' && <StaffAssignment />}
           {activeTab === 'billing' && <BillingSystem />}
+          {activeTab === 'advanced-billing' && <AdvancedBillingSystem />}
           {activeTab === 'communications' && <CommunicationSystem />}
           {activeTab === 'calendar' && <Calendar />}
+          {activeTab === 'appointments' && <AppointmentSystem />}
           {activeTab === 'reports' && <Reports />}
           {activeTab === 'management' && (user?.role === 'admin' ? <Management /> : <Dashboard />)}
         </Suspense>
